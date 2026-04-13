@@ -1,1 +1,2193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La Metamorfosis Práctica – Mateo Berger</title>
+<style>
+/* ===== VARIABLES Y RESET ===== */
+:root {
+  --bg: #0f0e0c;
+  --bg2: #1a1916;
+  --bg3: #242220;
+  --card: #1e1c1a;
+  --border: #333028;
+  --accent: #c8a96e;
+  --accent2: #e8c97e;
+  --accent3: #8b5e3c;
+  --text: #e8e0d0;
+  --text2: #a09080;
+  --text3: #6a5a4a;
+  --green: #5a8a5a;
+  --green2: #7ab87a;
+  --red: #8a4a4a;
+  --red2: #c07070;
+  --yellow: #8a7a3a;
+  --yellow2: #c0a850;
+  --blue: #3a5a7a;
+  --blue2: #6090b0;
+  --sidebar-w: 260px;
+  --radius: 10px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --font-display: 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  --font-ui: 'Trebuchet MS', 'Gill Sans', sans-serif;
+  --trans: all 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow-x:hidden;font-size:15px;line-height:1.7}
+
+/* ===== SIDEBAR ===== */
+#sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;z-index:100;transition:transform 0.3s ease}
+#sidebar-header{padding:20px 18px 14px;border-bottom:1px solid var(--border)}
+#sidebar-header h1{font-family:var(--font-display);font-size:14px;color:var(--accent);letter-spacing:0.08em;line-height:1.4;text-transform:uppercase}
+#sidebar-header p{font-size:11px;color:var(--text3);margin-top:3px;font-family:var(--font-ui)}
+#progress-bar-wrap{padding:12px 18px;border-bottom:1px solid var(--border)}
+#progress-bar-wrap label{font-size:10px;color:var(--text3);font-family:var(--font-ui);text-transform:uppercase;letter-spacing:0.06em}
+#progress-bar-track{background:var(--bg3);border-radius:99px;height:6px;margin-top:6px;overflow:hidden}
+#progress-bar-fill{height:6px;background:linear-gradient(90deg,var(--accent3),var(--accent));border-radius:99px;transition:width 0.5s ease;width:0%}
+#progress-label{font-size:10px;color:var(--accent);margin-top:4px;font-family:var(--font-ui)}
+#nav{flex:1;overflow-y:auto;padding:10px 0}
+.nav-section{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;padding:12px 18px 4px;font-family:var(--font-ui)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;transition:var(--trans);font-size:13px;color:var(--text2);border-left:3px solid transparent;font-family:var(--font-ui)}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--bg3);color:var(--accent);border-left-color:var(--accent)}
+.nav-item .nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{background:var(--accent3);color:var(--accent2);font-size:9px;padding:1px 6px;border-radius:99px;margin-left:auto;font-family:var(--font-ui)}
+
+/* ===== MAIN ===== */
+#main{margin-left:var(--sidebar-w);flex:1;padding:28px 32px;min-height:100vh;max-width:1100px}
+.section{display:none}
+.section.active{display:block;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== CARDS ===== */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+.card h2{font-family:var(--font-display);font-size:20px;color:var(--accent);margin-bottom:14px}
+.card h3{font-family:var(--font-display);font-size:16px;color:var(--accent2);margin-bottom:10px;margin-top:16px}
+.card p{color:var(--text2);margin-bottom:10px;line-height:1.75}
+.card ul{color:var(--text2);padding-left:20px;margin-bottom:10px}
+.card ul li{margin-bottom:5px}
+
+/* ===== PAGE HEADER ===== */
+.page-header{margin-bottom:28px}
+.page-header h1{font-family:var(--font-display);font-size:26px;color:var(--text);font-weight:normal;letter-spacing:-0.01em}
+.page-header p{color:var(--text2);margin-top:6px;font-size:13px;font-family:var(--font-ui)}
+.page-header .divider{width:50px;height:2px;background:var(--accent);margin:12px 0}
+
+/* ===== INPUTS ===== */
+textarea,input[type=text]{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px 14px;color:var(--text);font-family:var(--font-body);font-size:14px;resize:vertical;transition:var(--trans);outline:none}
+textarea:focus,input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,169,110,0.1)}
+textarea::placeholder,input[type=text]::placeholder{color:var(--text3)}
+label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;font-family:var(--font-ui);letter-spacing:0.04em}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-family:var(--font-ui);font-weight:600;transition:var(--trans);letter-spacing:0.02em}
+.btn-primary{background:var(--accent);color:#1a1510}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-secondary{background:var(--bg3);color:var(--text2);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--border);color:var(--text)}
+.btn-sm{padding:6px 13px;font-size:12px}
+.btn-danger{background:var(--red);color:#ffd0d0}
+.btn-danger:hover{background:var(--red2)}
+.btn-success{background:var(--green);color:#d0ffd0}
+.btn-success:hover{background:var(--green2)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+
+/* ===== PROGRESS RING ===== */
+.progress-ring-wrap{display:flex;align-items:center;gap:16px;margin-bottom:10px}
+.progress-ring-wrap svg{flex-shrink:0}
+.progress-ring-label{font-size:20px;font-family:var(--font-display);color:var(--accent)}
+.progress-ring-sublabel{font-size:12px;color:var(--text3);font-family:var(--font-ui)}
+
+/* ===== TABS ===== */
+.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:0}
+.tab{padding:9px 16px;cursor:pointer;font-size:13px;color:var(--text2);border-bottom:2px solid transparent;transition:var(--trans);font-family:var(--font-ui);margin-bottom:-1px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn 0.2s ease}
+
+/* ===== GRID ===== */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+/* ===== BADGES ===== */
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-family:var(--font-ui);font-weight:600}
+.badge-green{background:rgba(90,138,90,0.2);color:var(--green2);border:1px solid rgba(90,138,90,0.3)}
+.badge-red{background:rgba(138,74,74,0.2);color:var(--red2);border:1px solid rgba(138,74,74,0.3)}
+.badge-yellow{background:rgba(138,122,58,0.2);color:var(--yellow2);border:1px solid rgba(138,122,58,0.3)}
+.badge-blue{background:rgba(58,90,122,0.2);color:var(--blue2);border:1px solid rgba(58,90,122,0.3)}
+.badge-accent{background:rgba(200,169,110,0.15);color:var(--accent);border:1px solid rgba(200,169,110,0.25)}
+
+/* ===== ALERTS ===== */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:12px;font-family:var(--font-ui);border:1px solid}
+.alert-correct{background:rgba(90,138,90,0.1);border-color:rgba(90,138,90,0.3);color:var(--green2)}
+.alert-partial{background:rgba(138,122,58,0.1);border-color:rgba(138,122,58,0.3);color:var(--yellow2)}
+.alert-wrong{background:rgba(138,74,74,0.1);border-color:rgba(138,74,74,0.3);color:var(--red2)}
+.alert-info{background:rgba(58,90,122,0.1);border-color:rgba(58,90,122,0.3);color:var(--blue2)}
+
+/* ===== MODAL ===== */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex;animation:fadeIn 0.2s ease}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;max-width:900px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:10}
+.modal-header h2{font-family:var(--font-display);font-size:18px;color:var(--accent)}
+.modal-close{background:var(--bg3);border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:var(--trans)}
+.modal-close:hover{color:var(--text);background:var(--border)}
+.modal-body{padding:24px}
+.modal-tabs{display:flex;gap:0;margin:-24px -24px 24px;border-bottom:1px solid var(--border);overflow-x:auto}
+.modal-tab{padding:12px 18px;cursor:pointer;font-size:12px;color:var(--text3);border-bottom:2px solid transparent;transition:var(--trans);font-family:var(--font-ui);white-space:nowrap}
+.modal-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--bg3)}
+
+/* ===== QUESTION CARDS ===== */
+.q-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:16px}
+.q-card .q-text{font-size:14px;color:var(--text);margin-bottom:14px;line-height:1.65}
+.q-card .q-num{font-size:11px;color:var(--text3);font-family:var(--font-ui);margin-bottom:8px}
+.q-options{display:flex;flex-direction:column;gap:8px}
+.q-option{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:var(--trans);font-size:13px;color:var(--text2)}
+.q-option:hover{border-color:var(--accent3);color:var(--text)}
+.q-option.selected{border-color:var(--accent);background:rgba(200,169,110,0.08);color:var(--text)}
+.q-option.correct{border-color:var(--green2);background:rgba(90,138,90,0.1);color:var(--green2)}
+.q-option.wrong{border-color:var(--red2);background:rgba(138,74,74,0.1);color:var(--red2)}
+.q-option .opt-letter{background:var(--bg3);width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;font-family:var(--font-ui)}
+.q-feedback{margin-top:12px;padding:12px;border-radius:8px;font-size:12px;line-height:1.6;font-family:var(--font-ui)}
+
+/* ===== OPEN QUESTION ===== */
+.open-q-wrap{margin-bottom:16px}
+.open-q-text{font-size:14px;color:var(--text);margin-bottom:12px;line-height:1.65}
+.open-q-meta{font-size:11px;color:var(--text3);margin-bottom:8px;font-family:var(--font-ui)}
+
+/* ===== CHAPTER CARD ===== */
+.chapter-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:var(--trans);margin-bottom:14px;display:flex;align-items:center;gap:16px}
+.chapter-card:hover{border-color:var(--accent3);transform:translateX(3px)}
+.chapter-card.done{border-color:rgba(90,138,90,0.4);background:rgba(90,138,90,0.05)}
+.chapter-num{width:48px;height:48px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:18px;color:var(--accent);flex-shrink:0}
+.chapter-info h3{font-family:var(--font-display);font-size:15px;color:var(--text);margin-bottom:3px}
+.chapter-info p{font-size:12px;color:var(--text3);font-family:var(--font-ui)}
+.chapter-status{margin-left:auto;font-size:12px;font-family:var(--font-ui)}
+
+/* ===== TIMER ===== */
+#timer-display{font-family:var(--font-display);font-size:28px;color:var(--accent);letter-spacing:0.05em}
+.timer-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:16px;margin-bottom:16px}
+
+/* ===== GLOSARIO ===== */
+.glos-entry{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px}
+.glos-word{font-family:var(--font-display);font-size:15px;color:var(--accent);margin-bottom:4px}
+.glos-def{font-size:13px;color:var(--text2);margin-bottom:6px;line-height:1.6}
+.glos-example{font-size:12px;color:var(--text3);font-style:italic;border-left:2px solid var(--accent3);padding-left:10px}
+
+/* ===== TIMELINE ===== */
+.timeline{position:relative;padding-left:30px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:22px}
+.tl-dot{position:absolute;left:-26px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid var(--bg2)}
+.tl-content{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px}
+.tl-label{font-size:10px;color:var(--text3);font-family:var(--font-ui);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.tl-title{font-family:var(--font-display);font-size:14px;color:var(--text);margin-bottom:4px}
+.tl-desc{font-size:12px;color:var(--text2)}
+
+/* ===== CHARACTERS ===== */
+.char-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.char-avatar{width:52px;height:52px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px}
+.char-name{font-family:var(--font-display);font-size:16px;color:var(--accent);margin-bottom:4px}
+.char-role{font-size:11px;color:var(--text3);font-family:var(--font-ui);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.06em}
+.char-section-title{font-size:11px;color:var(--accent3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;font-family:var(--font-ui)}
+.char-text{font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6}
+
+/* ===== SCORE DISPLAY ===== */
+.score-big{font-family:var(--font-display);font-size:48px;color:var(--accent);line-height:1}
+.score-label{font-size:13px;color:var(--text3);font-family:var(--font-ui)}
+
+/* ===== STAT CARDS ===== */
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;text-align:center}
+.stat-val{font-family:var(--font-display);font-size:22px;color:var(--accent)}
+.stat-lbl{font-size:11px;color:var(--text3);font-family:var(--font-ui);margin-top:3px}
+
+/* ===== MIND MAP ===== */
+.mind-map{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:24px;overflow-x:auto}
+.mind-center{display:flex;justify-content:center;margin-bottom:20px}
+.mind-center-node{background:var(--accent);color:#1a1510;padding:10px 20px;border-radius:99px;font-family:var(--font-display);font-size:15px;font-weight:bold}
+.mind-branches{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.mind-branch{background:var(--card);border:1px solid var(--accent3);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--text2);max-width:180px;text-align:center}
+.mind-branch strong{display:block;color:var(--accent);font-family:var(--font-display);margin-bottom:4px;font-size:14px}
+
+/* ===== SUMMARY TABLE ===== */
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--bg3);color:var(--accent);font-family:var(--font-ui);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;padding:10px 14px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+
+/* ===== HAMBURGER (mobile) ===== */
+#hamburger{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;cursor:pointer;color:var(--accent);font-size:18px}
+@media(max-width:768px){
+  #sidebar{transform:translateX(-100%)}
+  #sidebar.open{transform:translateX(0)}
+  #main{margin-left:0;padding:18px 16px}
+  #hamburger{display:flex}
+}
+
+/* ===== PAES MODE ===== */
+.paes-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.paes-timer-big{font-family:var(--font-display);font-size:22px;color:var(--red2)}
+.skill-bar-wrap{margin-bottom:14px}
+.skill-bar-label{display:flex;justify-content:space-between;font-size:12px;font-family:var(--font-ui);margin-bottom:5px}
+.skill-bar-label span:first-child{color:var(--text2)}
+.skill-bar-label span:last-child{color:var(--accent)}
+.skill-bar-track{background:var(--bg3);border-radius:99px;height:7px;overflow:hidden}
+.skill-bar-fill{height:7px;background:linear-gradient(90deg,var(--accent3),var(--accent));border-radius:99px;transition:width 0.5s}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent3)}
+
+/* ===== TOAST ===== */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 18px;font-size:13px;font-family:var(--font-ui);color:var(--text);z-index:9999;transform:translateY(100px);opacity:0;transition:all 0.3s ease;max-width:280px}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.success{border-color:rgba(90,138,90,0.5);color:var(--green2)}
+#toast.error{border-color:rgba(138,74,74,0.5);color:var(--red2)}
+
+/* ===== MISC ===== */
+.separator{border:none;border-top:1px solid var(--border);margin:20px 0}
+.flex-between{display:flex;align-items:center;justify-content:space-between}
+.text-accent{color:var(--accent)}
+.text-muted{color:var(--text3)}
+.text-sm{font-size:12px}
+.mb-0{margin-bottom:0}
+.mt-8{margin-top:8px}
+.mt-16{margin-top:16px}
+.mt-24{margin-top:24px}
+.inline-flex{display:inline-flex;align-items:center;gap:8px}
+</style>
+</head>
+<body>
+
+<!-- HAMBURGER -->
+<button id="hamburger" onclick="toggleSidebar()">☰</button>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <h1>La Metamorfosis<br>Práctica</h1>
+    <p>Creado por Mateo Berger</p>
+  </div>
+  <div id="progress-bar-wrap">
+    <label>Progreso General</label>
+    <div id="progress-bar-track"><div id="progress-bar-fill"></div></div>
+    <div id="progress-label">0%</div>
+  </div>
+  <div id="nav">
+    <div class="nav-section">Estudio</div>
+    <div class="nav-item active" data-section="antes" onclick="showSection('antes')">
+      <span class="nav-icon">📖</span> Antes de leer
+    </div>
+    <div class="nav-item" data-section="durante" onclick="showSection('durante')">
+      <span class="nav-icon">🔍</span> Durante la lectura
+    </div>
+    <div class="nav-item" data-section="despues" onclick="showSection('despues')">
+      <span class="nav-icon">✨</span> Después de leer
+    </div>
+    <div class="nav-section">Práctica</div>
+    <div class="nav-item" data-section="paes" onclick="showSection('paes')">
+      <span class="nav-icon">📝</span> Práctica PAES
+      <span class="nav-badge">50</span>
+    </div>
+    <div class="nav-item" data-section="errores" onclick="showSection('errores')">
+      <span class="nav-icon">🔁</span> Repasar errores
+    </div>
+    <div class="nav-section">Recursos</div>
+    <div class="nav-item" data-section="resumenes" onclick="showSection('resumenes')">
+      <span class="nav-icon">📋</span> Resúmenes
+    </div>
+    <div class="nav-item" data-section="personajes" onclick="showSection('personajes')">
+      <span class="nav-icon">👥</span> Personajes
+    </div>
+    <div class="nav-item" data-section="timeline" onclick="showSection('timeline')">
+      <span class="nav-icon">📅</span> Línea de tiempo
+    </div>
+    <div class="nav-item" data-section="glosario" onclick="showSection('glosario')">
+      <span class="nav-icon">📚</span> Glosario
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main id="main">
+
+<!-- ========== SECCIÓN 1: ANTES DE LA LECTURA ========== -->
+<section id="section-antes" class="section active">
+  <div class="page-header">
+    <h1>Antes de la Lectura</h1>
+    <div class="divider"></div>
+    <p>Conoce el contexto, al autor y prepárate para la lectura de <em>La Metamorfosis</em>.</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('antes','contexto')">Contexto</div>
+    <div class="tab" onclick="showTab('antes','temas')">Temas</div>
+    <div class="tab" onclick="showTab('antes','reflexion')">Reflexión previa</div>
+    <div class="tab" onclick="showTab('antes','predicciones')">Predicciones</div>
+  </div>
+
+  <!-- TAB CONTEXTO -->
+  <div id="antes-contexto" class="tab-content active">
+    <div class="card">
+      <h2>Franz Kafka (1883–1924)</h2>
+      <p>Franz Kafka nació el 3 de julio de 1883 en Praga, entonces parte del Imperio Austrohúngaro. Hijo de padres judíos de clase media, fue el mayor de seis hermanos. Su padre, Hermann Kafka, era un comerciante autoritario y dominante cuya presencia marcó profundamente la psicología del escritor.</p>
+      <p>Estudió Derecho en la Universidad Carolina de Praga y trabajó como funcionario en una compañía de seguros. Su vida fue marcada por una salud frágil —sufrió tuberculosis que lo llevaría a la muerte temprana a los 40 años—, relaciones sentimentales tormentosas y una producción literaria que mantuvo en gran parte oculta.</p>
+      <p>Kafka es considerado uno de los escritores más influyentes del siglo XX. Sus obras exploran temas de alienación, burocracia, culpa y transformación existencial. Antes de morir, le pidió a su amigo Max Brod que destruyera sus manuscritos; Brod los conservó y publicó, salvando así obras como <em>El proceso</em>, <em>El castillo</em> y <em>La metamorfosis</em>.</p>
+    </div>
+    <div class="card">
+      <h2>Relación con su Padre</h2>
+      <p>La relación de Kafka con su padre Hermann fue uno de los ejes centrales de su vida y obra. Hermann era un hombre imponente, exitoso en los negocios y con una personalidad dominante que aplastaba psicológicamente a Franz. En 1919, Kafka escribió la famosa <em>Carta al Padre</em>, un documento de más de 100 páginas en el que analizaba el daño psicológico causado por la figura paterna.</p>
+      <p>Esta relación se refleja directamente en <em>La Metamorfosis</em>: el padre de Gregorio Samsa es una figura autoritaria, violenta y utilitaria que solo valorará a su hijo mientras sea económicamente productivo. Cuando Gregorio ya no puede trabajar, el padre se convierte en su perseguidor.</p>
+      <p>La transformación de Gregorio en insecto puede leerse como la materialización del sentimiento de Kafka de ser un "monstruo" a los ojos de su padre, alguien que causa vergüenza y que no puede cumplir con las expectativas familiares.</p>
+    </div>
+    <div class="card">
+      <h2>Contexto Histórico</h2>
+      <p><em>La Metamorfosis</em> fue escrita en 1912 y publicada en 1915, en un período de enorme tensión en Europa. El continente se encontraba en vísperas de la Primera Guerra Mundial (1914–1918), período que sacudiría los fundamentos de la sociedad occidental.</p>
+      <p>En las ciudades europeas de principios del siglo XX, el sistema capitalista industrial generaba una nueva clase de trabajadores: empleados dependientes, engranajes de grandes empresas, cuya identidad quedaba subordinada a su rol económico. Gregorio Samsa es exactamente ese tipo de trabajador: su valor como persona es puramente instrumental.</p>
+      <p>También existe un contexto judío importante: las comunidades judías en el Imperio Austrohúngaro vivían en una tensión constante de asimilación e identidad. La sensación de "no pertenecer" completamente a ningún grupo, de ser un extraño incluso en la propia familia, es central en la experiencia kafkiana.</p>
+      <p>El <strong>expresionismo</strong> —movimiento artístico alemán de la época— buscaba representar la realidad interior distorsionada, la angustia existencial y el horror psicológico. <em>La Metamorfosis</em> es una de las obras cumbres de esta tendencia.</p>
+    </div>
+  </div>
+
+  <!-- TAB TEMAS -->
+  <div id="antes-temas" class="tab-content">
+    <div class="grid-2">
+      <div class="card">
+        <h2>🔗 Alienación</h2>
+        <p>Gregorio Samsa se siente alienado —separado de sí mismo y de los demás— incluso antes de su transformación. Su vida está completamente definida por su trabajo como viajante de comercio. La transformación física no hace sino externalizar una alienación que ya existía internamente.</p>
+        <p><strong>Qué observar:</strong> ¿Cómo cambia la relación de Gregorio con su familia a medida que avanza la novela?</p>
+      </div>
+      <div class="card">
+        <h2>😔 Culpa y Deuda</h2>
+        <p>Gregorio trabaja para pagar la deuda de su padre. Esta deuda económica se convierte en una deuda moral que encadena a Gregorio. Incluso después de su transformación, siente culpa por no poder seguir trabajando.</p>
+        <p><strong>Qué observar:</strong> ¿En qué momentos Gregorio expresa culpa? ¿Quién más siente culpa en la familia?</p>
+      </div>
+      <div class="card">
+        <h2>👨‍👩‍👧 Familia y Utilidad</h2>
+        <p>La familia Samsa representa una relación basada en la utilidad económica. El amor familiar es condicional: se mantiene mientras Gregorio puede contribuir económicamente. Cuando deja de ser útil, se convierte en una carga y luego en un obstáculo.</p>
+        <p><strong>Qué observar:</strong> ¿Cómo evoluciona cada miembro de la familia en relación a Gregorio?</p>
+      </div>
+      <div class="card">
+        <h2>🪲 Identidad y Transformación</h2>
+        <p>La metamorfosis plantea preguntas profundas sobre la identidad: ¿Qué hace que una persona sea "humana"? ¿Es el cuerpo físico, la conciencia, el lenguaje o el rol social? Gregorio mantiene su conciencia humana en un cuerpo de insecto.</p>
+        <p><strong>Qué observar:</strong> ¿Cuándo exactamente Gregorio deja de pensar como humano? ¿O lo hace?</p>
+      </div>
+      <div class="card">
+        <h2>💼 Trabajo y Capitalismo</h2>
+        <p>El mundo laboral en la novela es deshumanizante. El jefe puede llegar a la casa de un empleado a la primera falta. Gregorio es un engranaje reemplazable en una maquinaria capitalista que no reconoce su humanidad.</p>
+        <p><strong>Qué observar:</strong> ¿Cómo se relaciona Gregorio con su trabajo antes y después de la transformación?</p>
+      </div>
+      <div class="card">
+        <h2>🎻 Arte y Humanidad</h2>
+        <p>La música —específicamente el violín de Grete— representa la conexión con lo verdaderamente humano. En uno de los momentos más poignantes, Gregorio se siente más cerca de su hermana a través de la música que en ningún otro momento.</p>
+        <p><strong>Qué observar:</strong> ¿Qué papel juega la música de Grete en el desarrollo emocional de Gregorio?</p>
+      </div>
+    </div>
+    <div class="card mt-16">
+      <h2>🔭 Qué Observar Durante la Lectura</h2>
+      <ul>
+        <li>La reacción de cada personaje cuando ve a Gregorio por primera vez</li>
+        <li>Cómo cambia el lenguaje usado para referirse a Gregorio (de "Gregorio" a "esto" a "eso")</li>
+        <li>La evolución del padre: de figura débil a figura autoritaria con uniforme</li>
+        <li>Los detalles de comida: qué come Gregorio y qué le repugna</li>
+        <li>Las puertas: cuándo están abiertas o cerradas, quién las controla</li>
+        <li>El final: ¿es la muerte de Gregorio un alivio o una tragedia?</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB REFLEXIÓN PREVIA -->
+  <div id="antes-reflexion" class="tab-content">
+    <div class="card">
+      <h2>Preguntas de Reflexión</h2>
+      <p class="text-muted text-sm">Responde estas preguntas antes de leer. No hay respuestas correctas o incorrectas. Tus respuestas se guardan automáticamente.</p>
+    </div>
+
+    <div id="reflexion-preguntas"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="saveReflexion()">💾 Guardar respuestas</button>
+      <button class="btn btn-secondary" onclick="loadReflexion()">📂 Cargar guardado</button>
+    </div>
+    <div id="reflexion-status" class="text-sm text-muted mt-8"></div>
+  </div>
+
+  <!-- TAB PREDICCIONES -->
+  <div id="antes-predicciones" class="tab-content">
+    <div class="card">
+      <h2>Mis Predicciones</h2>
+      <p class="text-muted text-sm">Escribe qué crees que va a pasar en la novela. Después de leer, podrás comparar tus predicciones con lo que realmente ocurrió.</p>
+    </div>
+
+    <div id="predicciones-list"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="savePredicciones()">💾 Guardar predicciones</button>
+    </div>
+    <div id="pred-status" class="text-sm text-muted mt-8"></div>
+  </div>
+
+  <!-- PROGRESS BAR FOR SECTION -->
+  <div class="card mt-16">
+    <div class="flex-between">
+      <div>
+        <div style="font-size:13px;color:var(--text2);font-family:var(--font-ui)">Progreso — Antes de la lectura</div>
+        <div id="antes-pct" style="font-size:22px;color:var(--accent);font-family:var(--font-display)">0%</div>
+      </div>
+      <svg width="60" height="60" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="24" fill="none" stroke="var(--border)" stroke-width="5"/>
+        <circle id="antes-ring" cx="30" cy="30" r="24" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"
+          stroke-dasharray="150.8" stroke-dashoffset="150.8" transform="rotate(-90 30 30)" style="transition:stroke-dashoffset 0.5s ease"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECCIÓN 2: DURANTE LA LECTURA ========== -->
+<section id="section-durante" class="section">
+  <div class="page-header">
+    <h1>Durante la Lectura</h1>
+    <div class="divider"></div>
+    <p>Lee el libro por capítulos. Toma notas, usa el glosario y responde preguntas al terminar cada capítulo.</p>
+  </div>
+  <div id="chapter-list"></div>
+</section>
+
+<!-- ========== SECCIÓN 3: DESPUÉS DE LA LECTURA ========== -->
+<section id="section-despues" class="section">
+  <div class="page-header">
+    <h1>Después de la Lectura</h1>
+    <div class="divider"></div>
+    <p>Reflexiona sobre lo leído, compara tus predicciones y responde preguntas finales.</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('despues','resumen-gral')">Resumen general</div>
+    <div class="tab" onclick="showTab('despues','comparacion')">Predicciones vs. realidad</div>
+    <div class="tab" onclick="showTab('despues','interpretaciones')">Interpretaciones</div>
+    <div class="tab" onclick="showTab('despues','reflexion-final')">Reflexión final</div>
+  </div>
+
+  <div id="despues-resumen-gral" class="tab-content active">
+    <div class="card">
+      <h2>Resumen General</h2>
+      <p><em>La Metamorfosis</em> de Franz Kafka narra la historia de <strong>Gregorio Samsa</strong>, un viajante de comercio que una mañana amanece convertido en un monstruoso insecto. La novela no intenta explicar cómo o por qué ocurre la transformación —este hecho es aceptado como dado desde la primera línea.</p>
+      <p>La obra se divide en tres partes que pueden leerse como actos de una tragedia: la <strong>revelación</strong> (caps. 1–2: Gregorio descubre su estado y la familia reacciona con horror), la <strong>degradación</strong> (cap. 3–4: Gregorio se adapta a su nueva existencia mientras la familia se deteriora y aleja), y la <strong>resolución</strong> (caps. 5: la familia decide liberarse de Gregorio, quien muere, y la vida continúa).</p>
+      <p>Lo más perturbador de la novela no es la transformación física sino la transformación <em>moral</em>: cómo una familia puede dejar de ver a un ser querido como persona cuando deja de ser económicamente útil. La muerte de Gregorio es recibida con alivio, y la novela termina con la familia planeando su futuro optimistamente.</p>
+    </div>
+    <div class="card">
+      <h2>Relación con el Contexto Inicial</h2>
+      <p>Al comenzar la lectura se mencionaron los temas de <strong>alienación, culpa, familia, trabajo e identidad</strong>. ¿Cómo aparecieron en la novela?</p>
+      <ul>
+        <li><strong>Alienación:</strong> Gregorio ya estaba alienado antes de la transformación —su vida entera era el trabajo. La transformación hace visible lo invisible.</li>
+        <li><strong>Culpa:</strong> Gregorio siente culpa por no poder trabajar. La familia también siente culpa al principio, pero luego la racionaliza para justificar el abandono.</li>
+        <li><strong>Familia:</strong> Revela ser una institución basada en la utilidad y no en el amor incondicional.</li>
+        <li><strong>Trabajo:</strong> Es el único valor que el sistema reconoce. Sin trabajo, Gregorio pierde su humanidad a los ojos de todos.</li>
+        <li><strong>Identidad:</strong> La identidad de Gregorio nunca fue realmente suya —siempre fue "el que trabaja para la familia". Al perder eso, se pierde a sí mismo.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div id="despues-comparacion" class="tab-content">
+    <div class="card">
+      <h2>Mis Predicciones vs. Lo que Ocurrió</h2>
+      <p class="text-muted text-sm">Aquí puedes ver tus predicciones iniciales y registrar qué tan acertadas fueron.</p>
+    </div>
+    <div id="comparacion-content"></div>
+  </div>
+
+  <div id="despues-interpretaciones" class="tab-content">
+    <div class="card">
+      <h2>Interpretaciones de la Obra</h2>
+      <h3>🧠 Interpretación Biográfica</h3>
+      <p>La transformación de Gregorio refleja el sentimiento de Kafka de ser una carga para su familia, especialmente para su padre. La incapacidad de comunicarse y la pérdida de humanidad ante los ojos familiares espejan la experiencia del propio Kafka.</p>
+      <h3>⚙️ Interpretación Marxista</h3>
+      <p>El capitalismo convierte a los trabajadores en instrumentos desechables. Gregorio pierde su valor humano cuando pierde su capacidad productiva. La familia es un microcosmos del sistema capitalista que solo valora la utilidad económica.</p>
+      <h3>🧬 Interpretación Existencialista</h3>
+      <p>La transformación es la materialización de la angustia existencial: la sensación de ser absurdo, incomprendido e irrelevante en el mundo. Gregorio encarna la condición humana de quien descubre que su existencia no tiene el significado que creía.</p>
+      <h3>🛋️ Interpretación Freudiana</h3>
+      <p>La figura del padre represiva y la relación culposa con la autoridad reflejan dinámicas edípicas. La hermana representa la posibilidad de conexión genuina (arte, música) que también se pierde.</p>
+      <h3>🌀 Interpretación Literaria Pura</h3>
+      <p>El texto no requiere interpretación simbólica: es simplemente la historia de una familia enfrentando una situación imposible. La grandeza reside en la naturalidad con que todos aceptan lo inaceptable.</p>
+    </div>
+  </div>
+
+  <div id="despues-reflexion-final" class="tab-content">
+    <div id="reflexion-final-preguntas"></div>
+    <div class="btn-row mt-16">
+      <button class="btn btn-primary" onclick="saveReflexionFinal()">💾 Guardar reflexión final</button>
+    </div>
+    <div id="ref-final-status" class="text-sm text-muted mt-8"></div>
+  </div>
+</section>
+
+<!-- ========== SECCIÓN 4: PRÁCTICA PAES ========== -->
+<section id="section-paes" class="section">
+  <div class="page-header">
+    <h1>Práctica PAES</h1>
+    <div class="divider"></div>
+    <p>50 preguntas de alta dificultad clasificadas por habilidad. Modo normal o modo prueba con temporizador.</p>
+  </div>
+
+  <div id="paes-menu">
+    <div class="grid-3" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-val" id="paes-stat-total">0/50</div><div class="stat-lbl">Respondidas</div></div>
+      <div class="stat-card"><div class="stat-val" id="paes-stat-pct">0%</div><div class="stat-lbl">Puntaje</div></div>
+      <div class="stat-card"><div class="stat-val" id="paes-stat-errores">0</div><div class="stat-lbl">Errores guardados</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="showTab('paes-filter','todas')">Todas</div>
+      <div class="tab" onclick="showTab('paes-filter','localizar')">Localizar</div>
+      <div class="tab" onclick="showTab('paes-filter','interpretar')">Interpretar</div>
+      <div class="tab" onclick="showTab('paes-filter','inferir')">Inferir</div>
+      <div class="tab" onclick="showTab('paes-filter','evaluar')">Evaluar</div>
+      <div class="tab" onclick="showTab('paes-filter','analizar')">Analizar</div>
+    </div>
+
+    <div id="paes-filter-todas" class="tab-content active">
+      <div class="btn-row" style="margin-bottom:16px">
+        <button class="btn btn-primary" onclick="startPaes('normal')">▶ Modo Normal</button>
+        <button class="btn btn-secondary" onclick="startPaes('prueba')">⏱ Modo Prueba (90 min)</button>
+        <button class="btn btn-secondary btn-sm" onclick="resetPaes()">🔄 Reiniciar puntaje</button>
+      </div>
+      <div id="paes-questions-todas"></div>
+    </div>
+    <div id="paes-filter-localizar" class="tab-content"><div id="paes-questions-localizar"></div></div>
+    <div id="paes-filter-interpretar" class="tab-content"><div id="paes-questions-interpretar"></div></div>
+    <div id="paes-filter-inferir" class="tab-content"><div id="paes-questions-inferir"></div></div>
+    <div id="paes-filter-evaluar" class="tab-content"><div id="paes-questions-evaluar"></div></div>
+    <div id="paes-filter-analizar" class="tab-content"><div id="paes-questions-analizar"></div></div>
+  </div>
+
+  <div id="paes-exam-mode" style="display:none">
+    <div class="paes-header">
+      <div>
+        <div class="text-sm text-muted">Modo Prueba</div>
+        <div id="paes-exam-progress" class="text-accent" style="font-family:var(--font-ui);font-size:13px"></div>
+      </div>
+      <div style="text-align:center">
+        <div class="paes-timer-big" id="paes-exam-timer">90:00</div>
+        <div class="text-sm text-muted">tiempo restante</div>
+      </div>
+      <button class="btn btn-primary" onclick="finishExam()">Finalizar</button>
+    </div>
+    <div id="paes-exam-questions"></div>
+    <div class="btn-row mt-16">
+      <button class="btn btn-primary" onclick="finishExam()">📊 Ver resultados</button>
+      <button class="btn btn-secondary" onclick="cancelExam()">✖ Cancelar</button>
+    </div>
+  </div>
+
+  <div id="paes-results" style="display:none">
+    <div class="card">
+      <h2>Resultados del Examen</h2>
+      <div class="grid-3" style="margin-bottom:20px">
+        <div class="stat-card">
+          <div class="score-big" id="res-pct">0%</div>
+          <div class="stat-lbl">Puntaje total</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="res-correct" style="color:var(--green2)">0</div>
+          <div class="stat-lbl">Correctas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="res-wrong" style="color:var(--red2)">0</div>
+          <div class="stat-lbl">Incorrectas</div>
+        </div>
+      </div>
+      <div id="res-skill-bars"></div>
+    </div>
+    <div id="res-review"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="backToMenu()">← Volver al menú</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECCIÓN 5: RESÚMENES ========== -->
+<section id="section-resumenes" class="section">
+  <div class="page-header">
+    <h1>Resúmenes</h1>
+    <div class="divider"></div>
+    <p>Consulta los resúmenes por capítulo, general y de contexto, en distintos formatos.</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('res','texto')">Texto</div>
+    <div class="tab" onclick="showTab('res','tabla')">Tabla</div>
+    <div class="tab" onclick="showTab('res','mapa')">Mapa mental</div>
+  </div>
+
+  <div id="res-texto" class="tab-content active">
+    <div id="resumenes-texto-content"></div>
+  </div>
+  <div id="res-tabla" class="tab-content">
+    <div class="card">
+      <h2>Resumen por capítulo — Tabla</h2>
+      <div style="overflow-x:auto">
+        <table id="tabla-resumenes"></table>
+      </div>
+    </div>
+  </div>
+  <div id="res-mapa" class="tab-content">
+    <div class="mind-map">
+      <div class="mind-center">
+        <div class="mind-center-node">La Metamorfosis</div>
+      </div>
+      <div class="mind-branches" id="mind-branches"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== SECCIÓN 6: PERSONAJES ========== -->
+<section id="section-personajes" class="section">
+  <div class="page-header">
+    <h1>Personajes</h1>
+    <div class="divider"></div>
+    <p>Fichas detalladas de cada personaje: descripción, rol y evolución emocional.</p>
+  </div>
+  <div class="grid-2" id="personajes-grid"></div>
+</section>
+
+<!-- ========== SECCIÓN 7: LÍNEA DE TIEMPO ========== -->
+<section id="section-timeline" class="section">
+  <div class="page-header">
+    <h1>Línea de Tiempo</h1>
+    <div class="divider"></div>
+    <p>Los eventos más importantes de la novela en orden cronológico.</p>
+  </div>
+  <div class="timeline" id="timeline-content"></div>
+</section>
+
+<!-- ========== SECCIÓN 8: GLOSARIO ========== -->
+<section id="section-glosario" class="section">
+  <div class="page-header">
+    <h1>Glosario Inteligente</h1>
+    <div class="divider"></div>
+    <p>Consulta palabras del libro o agrega las tuyas. Todo se guarda automáticamente.</p>
+  </div>
+
+  <div class="card">
+    <h2>Buscar o agregar palabra</h2>
+    <div style="display:flex;gap:10px;align-items:flex-end">
+      <div style="flex:1">
+        <label>Escribe una palabra</label>
+        <input type="text" id="glos-input" placeholder="ej: alienación, metamorfosis, insecto...">
+      </div>
+      <button class="btn btn-primary" onclick="definirPalabra()">📖 Definir</button>
+    </div>
+    <div id="glos-result" class="mt-16"></div>
+  </div>
+
+  <div class="card">
+    <h2>Glosario del libro</h2>
+    <div id="glosario-base"></div>
+  </div>
+
+  <div class="card">
+    <h2>Mis palabras guardadas</h2>
+    <div id="glosario-personal"></div>
+  </div>
+</section>
+
+<!-- ========== SECCIÓN 9: REPASAR ERRORES ========== -->
+<section id="section-errores" class="section">
+  <div class="page-header">
+    <h1>Repasar Errores</h1>
+    <div class="divider"></div>
+    <p>Practica con las preguntas que respondiste incorrectamente. El orden es aleatorio.</p>
+  </div>
+
+  <div id="errores-menu">
+    <div class="card">
+      <div class="grid-3">
+        <div class="stat-card"><div class="stat-val" id="err-total">0</div><div class="stat-lbl">Errores guardados</div></div>
+        <div class="stat-card"><div class="stat-val" id="err-reintentados" style="color:var(--yellow2)">0</div><div class="stat-lbl">Reintentados</div></div>
+        <div class="stat-card"><div class="stat-val" id="err-superados" style="color:var(--green2)">0</div><div class="stat-lbl">Superados</div></div>
+      </div>
+      <div class="btn-row mt-16">
+        <button class="btn btn-primary" onclick="startRepasoErrores()">🔁 Iniciar repaso</button>
+        <button class="btn btn-secondary" onclick="clearErrores()">🗑 Limpiar errores</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="errores-repaso" style="display:none">
+    <div class="flex-between" style="margin-bottom:16px">
+      <div class="text-sm text-muted" id="err-counter"></div>
+      <button class="btn btn-secondary btn-sm" onclick="stopRepaso()">← Volver</button>
+    </div>
+    <div id="errores-pregunta-wrap"></div>
+  </div>
+</section>
+
+</main>
+
+<!-- ======= MODAL CAPÍTULO ======= -->
+<div class="modal-overlay" id="chapter-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Capítulo</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-tabs" id="modal-tabs-container">
+        <div class="modal-tab active" onclick="showModalTab('notas')">📝 Notas</div>
+        <div class="modal-tab" onclick="showModalTab('glosario-cap')">📖 Glosario</div>
+        <div class="modal-tab" onclick="showModalTab('resumen-cap')">📋 Resumen</div>
+        <div class="modal-tab" onclick="showModalTab('preguntas-cap')">❓ Preguntas</div>
+      </div>
+
+      <!-- NOTAS TAB -->
+      <div id="modal-notas" class="tab-content active">
+        <div class="timer-wrap">
+          <div>
+            <div style="font-size:11px;color:var(--text3);font-family:var(--font-ui);margin-bottom:3px">Cronómetro</div>
+            <div id="timer-display">00:00</div>
+          </div>
+          <div class="btn-row mb-0">
+            <button class="btn btn-sm btn-primary" onclick="timerStart()">▶</button>
+            <button class="btn btn-sm btn-secondary" onclick="timerStop()">⏸</button>
+            <button class="btn btn-sm btn-secondary" onclick="timerReset()">↺</button>
+          </div>
+        </div>
+        <label>Mis notas del capítulo</label>
+        <textarea id="cap-notas" rows="8" placeholder="Escribe tus notas, reflexiones o dudas sobre este capítulo..."></textarea>
+        <div class="btn-row mt-8">
+          <button class="btn btn-primary btn-sm" onclick="saveCapNotes()">💾 Guardar notas</button>
+        </div>
+      </div>
+
+      <!-- GLOSARIO TAB -->
+      <div id="modal-glosario-cap" class="tab-content">
+        <div style="display:flex;gap:10px;margin-bottom:16px;align-items:flex-end">
+          <div style="flex:1">
+            <label>Palabra desconocida</label>
+            <input type="text" id="mini-glos-input" placeholder="Escribe una palabra...">
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="miniDefinir()">Definir</button>
+        </div>
+        <div id="mini-glos-result"></div>
+        <div style="margin-top:16px;font-size:12px;color:var(--text3);font-family:var(--font-ui)">Palabras guardadas en este capítulo:</div>
+        <div id="mini-glos-saved" class="mt-8"></div>
+      </div>
+
+      <!-- RESUMEN TAB -->
+      <div id="modal-resumen-cap" class="tab-content">
+        <div id="cap-resumen-content"></div>
+      </div>
+
+      <!-- PREGUNTAS TAB -->
+      <div id="modal-preguntas-cap" class="tab-content">
+        <div id="cap-preguntas-content"></div>
+        <div class="btn-row mt-16">
+          <button class="btn btn-primary" onclick="evaluateCapPreguntas()">✓ Evaluar respuestas</button>
+        </div>
+        <div id="cap-eval-result" class="mt-16"></div>
+        <div class="btn-row mt-16">
+          <button class="btn btn-success" id="btn-finish-chapter" onclick="finishChapter()" style="display:none">✅ Capítulo terminado</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// =============================================
+// DATA: CAPÍTULOS, PREGUNTAS, GLOSARIO, ETC.
+// =============================================
+
+const CHAPTERS = [
+  {
+    id:1, title:'Capítulo I', pages:'3–11',
+    desc:'Gregorio despierta convertido en insecto. La familia y el gerente reaccionan al descubrirlo.',
+    summary:`<div class="card"><h2>Resumen — Capítulo I (Págs. 3–11)</h2>
+<p>Una mañana, Gregorio Samsa despierta convertido en un "monstruoso insecto." En lugar de desesperarse, su primera preocupación es llegar al trabajo a tiempo. Lucha durante largo tiempo para salir de la cama, ya que su nuevo cuerpo (con caparazón, múltiples patas y vientre convexo) no le responde.</p>
+<h3>Hechos importantes</h3><ul>
+<li>La transformación es presentada sin explicación ni drama: es un hecho dado desde la primera oración.</li>
+<li>El gerente del almacén llega personalmente a casa de Gregorio ante su falta.</li>
+<li>Gregorio logra abrir la puerta con la boca, revelándose ante el gerente y su familia.</li>
+<li>El gerente huye en pánico. La madre se desmaya. El padre lo empuja violentamente de vuelta a su habitación.</li>
+<li>Gregorio descubre que solo la leche le repugna, contrario a antes; prefiere alimentos podridos.</li>
+</ul>
+<h3>Personajes y emociones</h3><ul>
+<li><strong>Gregorio:</strong> Resignado, preocupado por el trabajo antes que por sí mismo. Mantiene conciencia humana.</li>
+<li><strong>Padre:</strong> Hostil y violento. Usa un bastón para empujar a Gregorio.</li>
+<li><strong>Madre:</strong> Angustiada, se desmaya al ver a su hijo.</li>
+<li><strong>Grete (hermana):</strong> Asustada pero atenta; trae comida a Gregorio.</li>
+<li><strong>Gerente:</strong> Huye aterrorizado. Representa la frialdad del mundo laboral.</li>
+</ul>
+<h3>Interpretación</h3>
+<p>La indiferencia inicial de Gregorio ante su transformación sugiere que ya estaba "transformado" espiritualmente: era un engranaje de la máquina laboral. La reacción del gerente revela que el sistema solo valora la productividad. El padre violento prefigura el deterioro de la relación familiar.</p></div>`,
+    questions: [
+      { type:'open', text:'¿Por qué crees que Gregorio, al despertar convertido en insecto, se preocupa principalmente por llegar al trabajo? ¿Qué dice esto sobre su vida antes de la transformación?',
+        keywords:['trabajo','preocupación','prioridad','empleado','obligación','deuda','familia','viajante','alienación','rutina'] },
+      { type:'open', text:'Describe cómo reacciona cada miembro de la familia al ver a Gregorio transformado. ¿Qué dice cada reacción sobre el personaje?',
+        keywords:['madre','desmaya','llora','padre','bastón','violento','hermana','grete','asustada','cuida','gerente','huye'] },
+      { type:'paes', text:'¿Cuál es el propósito principal de presentar la transformación de Gregorio en la primera oración del texto, sin explicaciones?',
+        options:['A) Crear suspenso sobre el origen de la transformación','B) Establecer la metamorfosis como un hecho cotidiano e irrebatible','C) Mostrar que Gregorio tiene poderes mágicos','D) Sorprender al lector con una revelación inesperada'], correct:1,
+        explanation:'Kafka presenta la transformación como si fuera algo completamente normal, lo que obliga al lector a aceptarla y enfocarse en sus consecuencias sociales y familiares, no en explicaciones sobrenaturales.' },
+      { type:'paes', text:'Cuando Gregorio piensa: "¡Qué cansada es la profesión que he elegido!", este pensamiento revela principalmente:',
+        options:['A) Que Gregorio disfruta de su trabajo pero está cansado ese día','B) Que Gregorio tiene una visión crítica de su vida laboral incluso antes de reflexionar sobre su transformación','C) Que Gregorio quiere cambiar de trabajo al día siguiente','D) Que el trabajo es la causa directa de su metamorfosis'], correct:1,
+        explanation:'Este pensamiento, que aparece mientras Gregorio procesa su transformación, revela que ya existía una insatisfacción profunda con su vida laboral. La metamorfosis no genera el descontento; lo visibiliza.' },
+      { type:'paes', text:'La actitud del gerente al llegar a casa de Gregorio por una sola falta refleja principalmente:',
+        options:['A) Su preocupación genuina por la salud de Gregorio','B) Un sistema laboral que trata a los empleados como sospechosos y herramientas','C) Una amistad especial entre Gregorio y el gerente','D) Las normas de cortesía de la época'], correct:1,
+        explanation:'El gerente representa la crueldad del sistema capitalista: acude personalmente ante la primera ausencia, sugiriendo que los empleados no tienen derecho a enfermarse ni a fallar.' }
+    ]
+  },
+  {
+    id:2, title:'Capítulo II', pages:'11–19',
+    desc:'Grete cuida a Gregorio. La familia discute su situación económica. Gregorio aprende a trepar.',
+    summary:`<div class="card"><h2>Resumen — Capítulo II (Págs. 11–19)</h2>
+<p>Gregorio se adapta lentamente a su nueva existencia. La hermana Grete asume el rol de cuidadora, trayéndole alimentos (descubriendo que prefiere alimentos podridos) y limpiando su habitación. Los padres no se atreven a entrar. Gregorio escucha desde detrás de la puerta las conversaciones familiares sobre su situación económica.</p>
+<h3>Hechos importantes</h3><ul>
+<li>Gregorio descubre que prefiere los alimentos putrefactos y rechaza la leche y alimentos frescos.</li>
+<li>Grete es la única que entra a su habitación, convirtiéndose en su principal cuidadora.</li>
+<li>El padre revela que tienen algo de dinero ahorrado: suficiente para uno o dos años.</li>
+<li>La hermana trabaja de dependienta; la madre cose en casa. La economía familiar se deteriora.</li>
+<li>Gregorio comienza a trepar por paredes y techos, descubriendo el placer de este movimiento.</li>
+<li>Grete y la madre deciden sacar algunos muebles para darle más espacio para trepar.</li>
+</ul>
+<h3>Personajes y emociones</h3><ul>
+<li><strong>Gregorio:</strong> Angustiado por la situación económica familiar. Siente culpa. Descubre placeres nuevos (trepar).</li>
+<li><strong>Grete:</strong> Dedicada pero cada vez más agotada. Establece "posesión" sobre el cuidado de Gregorio.</li>
+<li><strong>Madre:</strong> Quiere ver a Gregorio pero los demás la disuaden.</li>
+<li><strong>Padre:</strong> Trabaja en un banco con uniforme. Ha recuperado una autoridad que había perdido.</li>
+</ul>
+<h3>Interpretación</h3>
+<p>El cambio en los gustos alimenticios de Gregorio simboliza su transformación interior: ya no desea lo humano. La insistencia de Grete en ser la única cuidadora muestra una apropiación del dolor ajeno. El nuevo empleo del padre —con uniforme— sugiere una paradójica revitalización gracias a la tragedia de Gregorio.</p></div>`,
+    questions: [
+      { type:'open', text:'¿Qué revela la escena en que Grete selecciona los alimentos para Gregorio? ¿Qué tipo de relación establece con su hermano?',
+        keywords:['cuidado','amor','atención','alimentos','pudridura','preferencias','hermana','dedicación','comprender','adaptarse'] },
+      { type:'open', text:'La familia descubre que tiene algo de dinero ahorrado. ¿Cómo cambia esto la dinámica familiar? ¿Por qué Gregorio se siente "satisfecho" al escuchar esto?',
+        keywords:['dinero','ahorros','economía','trabajo','familia','culpa','alivio','responsabilidad','deuda','supervivencia'] },
+      { type:'paes', text:'El hecho de que el padre adopte un nuevo uniforme de trabajo y se muestre más autoritario tras la transformación de Gregorio sugiere:',
+        options:['A) Que el padre siempre fue un hombre trabajador y responsable','B) Que la crisis familiar paradójicamente devuelve al padre un rol y una identidad que había perdido','C) Que el padre estaba fingiendo ser débil antes de la transformación','D) Que el padre culpa a Gregorio de todos sus problemas'], correct:1,
+        explanation:'La transformación de Gregorio genera una crisis que reactiva al padre. Irónicamente, la tragedia del hijo le devuelve al padre una función y autoridad que había perdido durante los años en que Gregorio era el sostén familiar.' },
+      { type:'paes', text:'Cuando Gregorio descubre el placer de trepar por las paredes y el techo, este hecho puede interpretarse como:',
+        options:['A) Un signo de locura provocado por el aislamiento','B) La progresiva aceptación y adaptación de Gregorio a su nueva naturaleza no humana','C) Un intento de Gregorio por escapar de su habitación','D) Una reacción física sin significado simbólico'], correct:1,
+        explanation:'Trepar por las paredes representa la adaptación de Gregorio a su nueva realidad. En lugar de resistir su transformación, comienza a encontrar satisfacción en ella, lo que sugiere un desplazamiento progresivo de su identidad humana.' },
+      { type:'paes', text:'La insistencia de Grete en ser la única que cuide a Gregorio puede leerse como:',
+        options:['A) Un gesto de amor incondicional por su hermano','B) Una apropiación del rol de cuidadora que le otorga poder e identidad en la familia','C) Obediencia a las órdenes del padre','D) Miedo a que otros vean a Gregorio'], correct:1,
+        explanation:'Grete se convierte en la "experta" de Gregorio. Este rol le da identidad y poder en la familia, lo que explica su posterior resentimiento cuando ya no puede/quiere continuar.' }
+    ]
+  },
+  {
+    id:3, title:'Capítulo III', pages:'19–27',
+    desc:'La habitación se vacía. La madre ve a Gregorio. El padre lo bombardea con manzanas.',
+    summary:`<div class="card"><h2>Resumen — Capítulo III (Págs. 19–27)</h2>
+<p>Grete convence a la madre de sacar los muebles de la habitación de Gregorio para darle más espacio. La madre, al ver a Gregorio trepando por la pared, se desmaya. El padre regresa y, al creer que Gregorio amenazó a su familia, lo ataca lanzándole manzanas. Una manzana queda incrustada en la espalda de Gregorio, causándole una herida grave que nunca cicatrizará completamente.</p>
+<h3>Hechos importantes</h3><ul>
+<li>Debate sobre los muebles: la madre quiere conservarlos (esperanza de recuperación), Grete quiere quitarlos (practicidad).</li>
+<li>Gregorio se aferra al retrato de la mujer de pieles en la pared, negándose a que se lo lleven.</li>
+<li>La madre ve a Gregorio en la pared y se desmaya.</li>
+<li>El padre bombardea a Gregorio con manzanas; una queda incrustada en su espalda.</li>
+<li>La madre, a medio vestir, abraza al padre y le pide que no mate a su hijo.</li>
+</ul>
+<h3>Personajes y emociones</h3><ul>
+<li><strong>Gregorio:</strong> Desesperado por retener los muebles (vínculos con su humanidad). Herido gravemente.</li>
+<li><strong>Grete:</strong> Más fría y pragmática. Comienza a distanciarse emocionalmente.</li>
+<li><strong>Madre:</strong> Vacila entre la esperanza y el horror. Se desmaya al ver a Gregorio.</li>
+<li><strong>Padre:</strong> Violento y irracional. Las manzanas como arma son brutalmente simbólicas.</li>
+</ul>
+<h3>Interpretación</h3>
+<p>El retrato de la mujer de pieles que Gregorio protege con su cuerpo es el último vínculo con su humanidad y sexualidad. La manzana incrustada es una imagen bíblica (la caída, el pecado) pero también representa la agresión irreversible del padre. La herida que no sana simboliza el daño definitivo que la familia ha infligido a Gregorio.</p></div>`,
+    questions: [
+      { type:'open', text:'¿Por qué Gregorio se aferra desesperadamente al retrato de la mujer de pieles? ¿Qué representa este cuadro para él?',
+        keywords:['humanidad','identidad','recuerdo','vínculo','humano','pasado','deseo','sexualidad','conservar','aferrarse'] },
+      { type:'open', text:'¿Qué simboliza la manzana que el padre lanza y que queda incrustada en la espalda de Gregorio?',
+        keywords:['bíblico','pecado','caída','agresión','padre','daño','irreversible','violencia','herida','permanente'] },
+      { type:'paes', text:'El debate sobre sacar o conservar los muebles de la habitación de Gregorio representa principalmente:',
+        options:['A) Una discusión práctica sobre el espacio disponible','B) Dos visiones sobre la esperanza de recuperación de Gregorio y su humanidad','C) Un conflicto económico entre los miembros de la familia','D) La falta de comunicación entre madre e hija'], correct:1,
+        explanation:'La madre quiere conservar los muebles como símbolo de esperanza de que Gregorio regrese. Grete, más pragmática, quiere quitarlos para adaptarse a la nueva realidad. Es un debate sobre si Gregorio sigue siendo humano o ya no.' },
+      { type:'paes', text:'La reacción del padre al ver a Gregorio fuera de su habitación es:',
+        options:['A) Comprensiva, pues entiende que Gregorio no intentaba hacer daño','B) Violenta e irracional, sin intentar comprender la situación','C) Indiferente, pues ya está acostumbrado a la presencia de Gregorio','D) Temerosa pero controlada'], correct:1,
+        explanation:'El padre no espera explicaciones ni intenta entender. Su respuesta es puramente violenta: usa manzanas como proyectiles, actuando más como agresor que como padre.' },
+      { type:'paes', text:'La escena en que la madre corre, a medio vestir, a abrazar al padre y pedirle que no mate a su hijo transmite principalmente:',
+        options:['A) El amor incondicional de la madre por Gregorio a pesar de todo','B) La desesperación de una madre que se encuentra atrapada entre su marido y su hijo','C) La debilidad física de la madre','D) La indiferencia de la familia hacia los problemas de Gregorio'], correct:1,
+        explanation:'La madre está en una posición imposible: ama a su hijo pero también obedece/ama a su marido. Esto la paraliza. Corre a proteger a Gregorio, pero su acción es más un gesto que una defensa real.' }
+    ]
+  },
+  {
+    id:4, title:'Capítulo IV', pages:'27–35',
+    desc:'Llegan los huéspedes. La familia se degrada. Grete toca el violín. Gregorio es descubierto.',
+    summary:`<div class="card"><h2>Resumen — Capítulo IV (Págs. 27–35)</h2>
+<p>La familia alquila un cuarto a tres huéspedes formales para generar ingresos. La habitación de Gregorio se convierte en un depósito de objetos inútiles. La asistenta, única que no le teme, interactúa con Gregorio con burda curiosidad. Una noche, Grete toca el violín para los huéspedes; Gregorio sale atraído por la música, es descubierto, y los huéspedes amenazan con irse sin pagar.</p>
+<h3>Hechos importantes</h3><ul>
+<li>Tres huéspedes barbudos se instalan; son meticulosos y exigentes.</li>
+<li>La asistenta no siente repulsión ante Gregorio; lo llama "bicharraco" con familiaridad.</li>
+<li>Gregorio casi no come; su cuerpo se vuelve esquelético.</li>
+<li>Grete toca el violín; Gregorio avanza hacia el comedor, hipnotizado por la música.</li>
+<li>Los huéspedes amenazan con demandar a la familia y se marchan sin pagar.</li>
+<li>Grete pronuncia su primer discurso categórico: "Esto no puede seguir así."</li>
+</ul>
+<h3>Personajes y emociones</h3><ul>
+<li><strong>Gregorio:</strong> Su habitación degradada refleja su estado interior. La música lo conecta brevemente con lo humano.</li>
+<li><strong>Grete:</strong> Agotada, resentida. Comienza a negar la identidad de Gregorio ("este monstruo").</li>
+<li><strong>Huéspedes:</strong> Representan la sociedad burguesa que no tolera la "anormalidad".</li>
+<li><strong>Asistenta:</strong> Contraste irónico: la persona de menor estatus social es la única sin miedo.</li>
+</ul>
+<h3>Interpretación</h3>
+<p>La escena del violín es el clímax emocional de la novela: Gregorio se pregunta "¿sería una fiera si la música le emocionaba así?", sugiriendo que la capacidad de ser tocado por el arte es la última señal de humanidad. Los huéspedes representan la mirada normalizada que convierte a Gregorio en un objeto de repulsión y vergüenza social.</p></div>`,
+    questions: [
+      { type:'open', text:'La escena del violín es considerada el clímax emocional de la novela. ¿Por qué la música afecta tan profundamente a Gregorio? ¿Qué dice esto sobre su humanidad restante?',
+        keywords:['música','humanidad','emoción','hermana','violín','conexión','arte','sentir','último','vínculo'] },
+      { type:'open', text:'¿Por qué Grete finalmente decide que hay que "deshacerse" de Gregorio? ¿Su decisión es comprensible o repudiable?',
+        keywords:['agotamiento','carga','responsabilidad','familia','supervivencia','humanidad','amor','límite','trabajo','huéspedes'] },
+      { type:'paes', text:'Cuando Gregorio piensa: "¿sería una fiera, que la música le emocionaba de aquel modo?", esta reflexión sugiere:',
+        options:['A) Que Gregorio ha perdido completamente su humanidad','B) Que la sensibilidad artística es para él la última prueba de su humanidad persistente','C) Que las fieras no pueden sentir emociones','D) Que Gregorio quiere aprender a tocar violín'], correct:1,
+        explanation:'Gregorio usa la capacidad de emocionarse con la música como criterio para determinar si sigue siendo humano. Esto invierte el argumento: si puede sentir así, quizás no es tan diferente. Es la paradoja central de la obra.' },
+      { type:'paes', text:'La actitud de los tres huéspedes ante la aparición de Gregorio representa principalmente:',
+        options:['A) El miedo irracional de las personas ante lo desconocido','B) La intolerancia de la sociedad burguesa hacia lo que considera anormal o perturbador','C) La falta de educación de los huéspedes','D) Un conflicto legal sobre las condiciones del alquiler'], correct:1,
+        explanation:'Los huéspedes son figuras de la clase media respetable que exigen normalidad y orden. La presencia de Gregorio viola su sensibilidad burguesa, y reaccionan con el arma de clase media: la amenaza económica (no pagar, demandar).' },
+      { type:'paes', text:'La ironía de que la asistenta sea la única que no siente repulsión ante Gregorio sirve para:',
+        options:['A) Mostrar que es una mujer sin educación ni sensibilidad','B) Contrastar la crueldad de la familia con la indiferencia pragmática de alguien sin lazos afectivos','C) Demostrar que Gregorio no es realmente aterrador','D) Introducir un personaje cómico en la tragedia'], correct:1,
+        explanation:'La asistenta, que no tiene relación afectiva con Gregorio, no siente ni amor ni odio. Su indiferencia pragmática contrasta con el horror de la familia, sugiriendo que la repulsión familiar es en parte culpa disfrazada.' }
+    ]
+  },
+  {
+    id:5, title:'Capítulo V', pages:'35–43',
+    desc:'Gregorio decide morir. La familia acepta la muerte con alivio y optimismo.',
+    summary:`<div class="card"><h2>Resumen — Capítulo V (Págs. 35–43)</h2>
+<p>Tras el discurso de Grete, Gregorio regresa a su habitación. En un estado de apacible meditación, comprendiendo que su familia necesita que desaparezca, muere serenamente a las tres de la madrugada. La asistenta lo encuentra muerto. La familia reacciona con alivio. Echan a los huéspedes, despiden a la asistenta, y salen a pasear en tranvía, haciendo planes optimistas para el futuro. Los padres notan que Grete se ha convertido en una joven llena de vida.</p>
+<h3>Hechos importantes</h3><ul>
+<li>Gregorio acepta voluntariamente su muerte como un regalo para su familia.</li>
+<li>La asistenta lo encuentra muerto y llama: "¡Ha estirado la pata!"</li>
+<li>El padre dice: "Bueno, demos gracias a Dios."</li>
+<li>La familia echa a los huéspedes, y el padre recupera su autoridad.</li>
+<li>El día termina con la familia tomando el tranvía, haciendo planes de mudanza y matrimonio para Grete.</li>
+</ul>
+<h3>Personajes y emociones</h3><ul>
+<li><strong>Gregorio:</strong> Sereno, altruista en su muerte. Su último pensamiento es de amor por su familia.</li>
+<li><strong>Familia:</strong> Alivio explícito. El duelo es mínimo, casi inexistente.</li>
+<li><strong>Grete:</strong> Florece tras la muerte de Gregorio, convirtiéndose en el nuevo objeto de esperanza familiar.</li>
+</ul>
+<h3>Interpretación</h3>
+<p>El final es deliberadamente perturbador: la familia no llora, no reflexiona. El capítulo final es una sátira brutal del utilitarismo familiar y social. Grete "florece" donde Gregorio "marchitó": ella es ahora el nuevo valor de cambio de la familia. La última imagen —los padres planeando casarla— completa el círculo: una persona es útil mientras puede ser instrumentalizada.</p></div>`,
+    questions: [
+      { type:'open', text:'Gregorio muere sintiéndose en "apacible meditación" y convencido de que tiene que desaparecer. ¿Esta muerte es un suicidio simbólico o un acto de amor? Argumenta tu posición.',
+        keywords:['suicidio','amor','sacrificio','familia','desaparecer','aceptación','altruismo','decisión','paz','culpa'] },
+      { type:'open', text:'El final de la novela muestra a la familia haciendo planes optimistas y notando que Grete "se ha convertido en una linda joven". ¿Qué dice esto sobre la familia Samsa y sobre la sociedad que Kafka retrata?',
+        keywords:['alivio','utilitarismo','instrumental','grete','nueva','valor','familia','optimismo','muerte','olvido'] },
+      { type:'paes', text:'La reacción del padre ante la muerte de Gregorio —"Bueno, demos gracias a Dios"— revela principalmente:',
+        options:['A) Una fe religiosa profunda que lo ayuda a sobrellevar el dolor','B) Que la muerte de Gregorio es percibida como una liberación, no como una pérdida','C) Una actitud fatalista y pesimista ante la vida','D) Que el padre nunca amó a Gregorio'], correct:1,
+        explanation:'La expresión es explícita: la muerte de Gregorio es un alivio. No hay duelo genuino. Esto confirma que la relación familiar estaba basada en la utilidad: sin utilidad, no hay pérdida real.' },
+      { type:'paes', text:'El hecho de que Grete "florezca" tras la muerte de Gregorio y que los padres planeen casarla sirve para:',
+        options:['A) Mostrar que la vida continúa y que la familia puede recuperarse de la tragedia','B) Revelar que Grete ocupará el rol instrumental que Gregorio tenía: ser un valor de cambio para la familia','C) Sugerir que Grete siempre fue la favorita de los padres','D) Demostrar que el amor de padres hacia sus hijos es universal e incondicional'], correct:1,
+        explanation:'Kafka cierra el círculo: Grete pasa de cuidadora de Gregorio a nuevo objeto de esperanza familiar. Los padres la miran con ojos calculadores (buen partido para casarse). Es el mismo utilitarismo aplicado a otro hijo.' },
+      { type:'paes', text:'¿Cuál de las siguientes opciones mejor describe el tono del capítulo final de la novela?',
+        options:['A) Melancólico y elegíaco, como una despedida dolorosa','B) Satírico e irónico, mostrando la superficialidad del duelo familiar','C) Esperanzador y luminoso, sugiriendo una redención familiar','D) Oscuro y amenazante, anunciando nuevas tragedias'], correct:1,
+        explanation:'Kafka termina con un tono deliberadamente optimista desde la perspectiva de la familia, lo que resulta perturbador. Esa alegría inmediata ante la muerte de Gregorio es la sátira más brutal de toda la obra.' }
+    ]
+  }
+];
+
+const REFLEXION_PREGUNTAS = [
+  { id:'r1', text:'¿Alguna vez te has sentido "invisible" o ignorado por personas importantes en tu vida? ¿Cómo te afectó?' },
+  { id:'r2', text:'¿Crees que una persona puede perder su identidad por el rol que cumple (trabajador, hijo/a, proveedor)? Explica.' },
+  { id:'r3', text:'¿Qué harías si alguien de tu familia cambiara radicalmente y ya no pudiera cumplir su rol habitual?' },
+  { id:'r4', text:'¿Cuándo crees que una persona deja de ser "humana" a los ojos de los demás?' },
+  { id:'r5', text:'¿Qué significa para ti "pertenecer" a una familia o grupo?' }
+];
+
+const PREDICCIONES_PROMPTS = [
+  { id:'p1', text:'¿Qué crees que le pasará a Gregorio al final de la novela?' },
+  { id:'p2', text:'¿Cómo crees que reaccionará su familia ante la transformación?' },
+  { id:'p3', text:'¿Crees que Gregorio recuperará su forma humana? ¿Por qué?' }
+];
+
+const REFLEXION_FINAL_PREGUNTAS = [
+  { id:'rf1', text:'¿Cuál fue el momento más impactante de la novela para ti? ¿Por qué?',
+    keywords:['impacto','emoción','escena','momento','padre','manzana','violín','música','muerte','familia'] },
+  { id:'rf2', text:'¿Crees que Gregorio fue víctima de su familia o de sí mismo? Argumenta.',
+    keywords:['víctima','familia','responsabilidad','culpa','decisión','trabajo','deuda','voluntad','aceptación','sistema'] },
+  { id:'rf3', text:'¿Qué relación encuentras entre la novela y la vida actual? ¿Hay "Gregorios" en el mundo de hoy?',
+    keywords:['actualidad','trabajo','explotación','alienación','familia','rol','identidad','hoy','sociedad','moderno'] },
+  { id:'rf4', text:'¿Cambió tu opinión sobre algún personaje entre el inicio y el final? ¿Cuál y por qué?',
+    keywords:['opinión','personaje','cambio','grete','padre','madre','evolución','comprensión','juicio','perspectiva'] }
+];
+
+const GLOSARIO_BASE = [
+  { word:'Alienación', def:'Proceso por el cual una persona se siente extraña a sí misma, a su trabajo o a la sociedad.', example:'Gregorio vive una alienación profunda: trabaja sin descanso pero no siente que su vida le pertenezca.' },
+  { word:'Metamorfosis', def:'Transformación radical de la forma o naturaleza de algo. En biología, el cambio de insectos como mariposas.', example:'La metamorfosis de Gregorio es tanto física (se convierte en insecto) como simbólica (pierde su humanidad social).' },
+  { word:'Viajante de comercio', def:'Representante comercial que viaja para vender productos de una empresa a distintos clientes.', example:'Gregorio es viajante de comercio y pasa la mayor parte de su vida en trenes y fondas.' },
+  { word:'Gerente', def:'Persona que dirige y administra una empresa o negocio. En la novela, representa la autoridad laboral.', example:'El gerente llega en persona ante la primera falta de Gregorio, revelando la crueldad del sistema laboral.' },
+  { word:'Caparazón', def:'Cubierta dura y protectora que tienen algunos animales, como escarabajos y tortugas.', example:'Gregorio tiene un duro caparazón en su espalda que le impede yacer cómodamente.' },
+  { word:'Antenas', def:'Apéndices sensoriales presentes en insectos, usados para detectar sonidos, olores y vibraciones.', example:'Gregorio usa sus antenas para explorar la habitación por primera vez en la oscuridad.' },
+  { word:'Callosidades', def:'Endurecimiento de la piel por fricción o presión. En el texto, describe la piel del vientre de Gregorio.', example:'El vientre de Gregorio estaba surcado por curvadas callosidades.' },
+  { word:'Muestrario', def:'Colección de muestras de productos (como telas) que un vendedor lleva para mostrar a clientes.', example:'Gregorio tenía su muestrario de paños sobre la mesa, listo para salir de viaje.' },
+  { word:'Baúl', def:'Caja grande y resistente usada para guardar y transportar cosas. También sirve de apoyo a Gregorio.', example:'Gregorio intentó enderezarse apoyándose en el baúl para llegar hasta la puerta.' },
+  { word:'Expresionismo', def:'Movimiento artístico que busca representar la angustia interior y la distorsión de la realidad.', example:'La metamorfosis de Gregorio es una imagen expresionista: lo interior (alienación) se hace exterior (insecto).' },
+  { word:'Mandíbulas', def:'Huesos de la boca usados para masticar. En insectos, son piezas bucales para sujetar alimentos.', example:'Gregorio usó sus mandíbulas para hacer girar la llave de su habitación.' },
+  { word:'Holgazanería', def:'Hábito de evitar el trabajo. El médico del jefe diagnosticaría a todos los empleados con "horror al trabajo".', example:'El gerente insinúa que la falta de Gregorio podría deberse a holgazanería.' },
+  { word:'Repugnancia', def:'Asco o rechazo intenso ante algo que se considera desagradable.', example:'El gerente contempla a Gregorio con una mueca de repugnancia en el rostro.' },
+  { word:'Estertor', def:'Ruido ronco que produce una persona al respirar con dificultad. Señal de agonía.', example:'En su última noche, Gregorio emite su último suspiro débilmente.' },
+  { word:'Portera', def:'Persona que cuida la entrada de un edificio. En la novela, el padre la menciona para buscar cerveza.', example:'La hermana ofrece mandar a la portera a buscar cerveza para el padre.' }
+];
+
+const PERSONAJES_DATA = [
+  {
+    emoji:'🪲', name:'Gregorio Samsa', role:'Protagonista / Viajante de comercio',
+    desc:'Gregorio es el sostén económico de su familia, un empleado sacrificado que trabaja para pagar la deuda de su padre. Es un hombre bondadoso, reflexivo y consciente de sus responsabilidades. Su transformación en insecto exterioriza una alienación que ya existía antes.',
+    evolucion:'Al principio mantiene su conciencia y preocupaciones humanas (el trabajo, la familia). Progresivamente acepta su nueva naturaleza (come basura, trepa paredes). Al final, acepta voluntariamente su muerte como regalo a su familia. Su evolución es un arco de sacrificio y resignación.',
+    rol:'Representa al trabajador alienado, al hijo que se sacrifica, y a cualquier persona que pierde su valor social cuando deja de ser "útil".'
+  },
+  {
+    emoji:'👨', name:'Hermann Samsa (padre)', role:'Padre de Gregorio',
+    desc:'Al inicio es un hombre mayor, cansado y dependiente de Gregorio. Con la transformación, recupera su autoridad: consigue empleo como ordenanza de banco y usa su uniforme como símbolo de poder. Es la figura más violenta de la novela.',
+    evolucion:'De hombre pasivo y gastado a figura autoritaria con uniforme. Su violencia se intensifica: primero usa un bastón, luego bombardea a Gregorio con manzanas. Representa cómo la adversidad puede restaurar la autoridad tiránica.',
+    rol:'Representa la figura paterna opresiva, el patriarcado burgués y la violencia disfrazada de disciplina.'
+  },
+  {
+    emoji:'👩', name:'Señora Samsa (madre)', role:'Madre de Gregorio',
+    desc:'Mujer afectuosa pero físicamente débil (padece asma). Quiere ver a Gregorio y conservar sus muebles como símbolo de esperanza. Es la figura más ambigua: ama a su hijo pero no puede protegerlo.',
+    evolucion:'Pasa del horror inicial al deseo de ver a Gregorio, luego al alejamiento forzado. No tiene poder real en la familia y su amor queda paralizado por el miedo y la enfermedad. Al final acepta la muerte de Gregorio sin cuestionamiento.',
+    rol:'Representa el amor materno imposibilitado por las circunstancias y la incapacidad de proteger al vulnerable dentro del sistema familiar patriarcal.'
+  },
+  {
+    emoji:'🎻', name:'Grete Samsa', role:'Hermana de Gregorio',
+    desc:'Al inicio es una adolescente de 17 años, aficionada al violín. Se convierte en la cuidadora principal de Gregorio y la más comprometida con su bienestar. Con el tiempo, es también quien emite el veredicto final.',
+    evolucion:'De hermana amorosa y dedicada a figura agotada y resentida que acaba negando la humanidad de su hermano. Su arco es el más trágico: comenzó con el mayor amor y terminó con el rechazo más categórico. Al final "florece" tras la muerte de Gregorio.',
+    rol:'Representa la juventud que no puede sostener indefinidamente el peso del sacrificio. También es el espejo de Gregorio: mientras él muere, ella florece.'
+  },
+  {
+    emoji:'💼', name:'El Gerente', role:'Jefe de Gregorio',
+    desc:'Aparece solo en el primer capítulo. Llega a casa de Gregorio ante su primera falta, representando la crueldad del sistema laboral.',
+    evolucion:'Comienza con un tono condescendiente, luego huye aterrorizado al ver a Gregorio. Su desaparición rápida y sin consecuencias revela que el sistema laboral es también cobarde: no enfrenta lo que no puede controlar.',
+    rol:'Símbolo del capitalismo inhumano y la presión laboral que convierte a los empleados en sospechosos ante la primera señal de fragilidad.'
+  },
+  {
+    emoji:'🧹', name:'La Asistenta', role:'Empleada doméstica',
+    desc:'Una viuda mayor, huesuda y robusta. Es la única que no siente miedo ni repulsión ante Gregorio. Lo llama "bicharraco" con familiaridad y trato directo.',
+    evolucion:'Su relación con Gregorio es de indiferencia pragmática. No lo teme pero tampoco lo respeta. Ella anuncia su muerte con la expresión más brutal de la novela: "¡Ha estirado la pata!"',
+    rol:'Contraste irónico: la persona de menor estatus social es la única sin afectación. Su brutalidad directa revela lo ridículo del horror de los demás.'
+  }
+];
+
+const TIMELINE_DATA = [
+  { label:'Antes del relato', title:'Quiebra del padre', desc:'El padre de Gregorio quiebra en los negocios. Gregorio comienza a trabajar para pagar la deuda familiar y sostener el hogar.' },
+  { label:'Noche anterior', title:'Sueño intranquilo', desc:'Gregorio duerme mal. A la mañana siguiente se despertará transformado.' },
+  { label:'Mañana — Cap. I', title:'La Metamorfosis', desc:'Gregorio despierta convertido en un monstruoso insecto. Su primera preocupación es el trabajo.' },
+  { label:'Cap. I', title:'El gerente llega', desc:'Ante la falta de Gregorio, el gerente del almacén acude personalmente a su casa.' },
+  { label:'Cap. I', title:'Primera revelación', desc:'Gregorio abre la puerta con la boca. El gerente huye. El padre lo empuja de vuelta con el bastón.' },
+  { label:'Cap. I — Noche', title:'Grete trae comida', desc:'La hermana descubre que Gregorio prefiere alimentos podridos. Asume el rol de cuidadora.' },
+  { label:'Cap. II', title:'La familia se adapta', desc:'El padre trabaja en un banco. Grete trabaja de dependienta. La madre cose en casa. La familia se degrada económicamente.' },
+  { label:'Cap. II', title:'Gregorio trepa', desc:'Gregorio descubre el placer de trepar paredes y techos. La hermana nota esto y planea sacar los muebles.' },
+  { label:'Cap. III', title:'Los muebles', desc:'Debate entre madre y hermana sobre los muebles. Gregorio protege el retrato de la mujer de pieles.' },
+  { label:'Cap. III', title:'La manzana', desc:'El padre bombardea a Gregorio con manzanas. Una queda incrustada en su espalda, causando una herida grave.' },
+  { label:'Cap. IV', title:'Los huéspedes', desc:'Tres huéspedes formales se instalan para generar ingresos. La habitación de Gregorio se convierte en depósito.' },
+  { label:'Cap. IV', title:'El violín', desc:'Grete toca el violín. Gregorio avanza hacia el comedor hipnotizado por la música. Los huéspedes lo descubren.' },
+  { label:'Cap. IV', title:'El veredicto de Grete', desc:'"Esto no puede seguir así." Grete propone deshacerse de Gregorio. El padre acuerda.' },
+  { label:'Cap. V — Madrugada', title:'Muerte de Gregorio', desc:'Gregorio acepta morir por amor a su familia. Muere serenamente a las tres de la madrugada.' },
+  { label:'Cap. V — Mañana', title:'"Ha estirado la pata"', desc:'La asistenta encuentra el cadáver. El padre dice "Demos gracias a Dios". La familia reacciona con alivio.' },
+  { label:'Cap. V — Final', title:'El tranvía', desc:'La familia echa a los huéspedes, sale de paseo en tranvía y planea un futuro optimista. Los padres notan que Grete se ha convertido en una "linda joven".' }
+];
+
+const RESUMENES_TEXTO = [
+  { title:'Capítulo I (Págs. 3–11)', text:'Gregorio Samsa amanece convertido en un monstruoso insecto. Lucha por levantarse y abre la puerta revelándose ante su familia y el gerente, que huyen aterrorizados. La hermana Grete asume el cuidado de Gregorio, descubriendo que prefiere alimentos podridos.' },
+  { title:'Capítulo II (Págs. 11–19)', text:'Gregorio se adapta a su nueva vida. La hermana es su única conexión con el mundo. El padre trabaja en un banco con uniforme, la madre cose, Grete trabaja. Gregorio descubre el placer de trepar por paredes. Debate entre sacar o conservar los muebles.' },
+  { title:'Capítulo III (Págs. 19–27)', text:'Madre y hermana sacan muebles. La madre se desmaya al ver a Gregorio en la pared. El padre lo bombardea con manzanas; una queda incrustada en su espalda causando una herida permanente.' },
+  { title:'Capítulo IV (Págs. 27–35)', text:'Tres huéspedes se instalan. La asistenta es la única sin miedo. Grete toca el violín; Gregorio avanza emocionado pero es descubierto. Los huéspedes amenazan con irse. Grete pronuncia el veredicto: hay que deshacerse de Gregorio.' },
+  { title:'Capítulo V (Págs. 35–43)', text:'Gregorio acepta morir voluntariamente por amor a su familia. Muere a las tres de la madrugada. La asistenta lo anuncia con brutalidad. La familia reacciona con alivio. Echan a los huéspedes y salen de paseo, planificando un futuro optimista.' },
+  { title:'Resumen General', text:'La Metamorfosis narra cómo Gregorio Samsa, al transformarse en insecto, pierde progresivamente su valor a ojos de su familia, que lo abandona cuando deja de ser útil económicamente. La novela es una crítica al utilitarismo familiar y al capitalismo deshumanizante.' },
+  { title:'Contexto y Obra', text:'Escrita en 1912, la obra refleja la alienación del trabajador capitalista, la relación tóxica de Kafka con su padre, y el expresionismo europeo de principios del siglo XX. Es una de las obras más influyentes de la literatura universal.' }
+];
+
+// =============================================
+// PAES QUESTIONS (50)
+// =============================================
+const PAES_QUESTIONS = [
+  // LOCALIZAR (10)
+  {id:'p1',skill:'localizar',text:'¿En qué momento del día amanece Gregorio convertido en insecto?',options:['A) Al mediodía','B) Por la tarde','C) Una mañana, al despertar','D) A medianoche'],correct:2,explanation:'La primera oración del texto establece: "Una mañana, tras un sueño intranquilo, Gregorio Samsa se despertó convertido en un monstruoso insecto."'},
+  {id:'p2',skill:'localizar',text:'¿Cuál es la profesión de Gregorio Samsa?',options:['A) Médico','B) Viajante de comercio','C) Contador','D) Carpintero'],correct:1,explanation:'El texto especifica "Samsa era viajante de comercio", una profesión que lo obliga a viajar constantemente.'},
+  {id:'p3',skill:'localizar',text:'¿Quién acude a casa de Gregorio ante su falta al trabajo?',options:['A) El director de la empresa','B) Un médico del seguro','C) El gerente del almacén','D) Un compañero de trabajo'],correct:2,explanation:'Es "el gerente en persona" quien llega a la casa, lo que Gregorio mismo reconoce como señal de la gravedad de su situación laboral.'},
+  {id:'p4',skill:'localizar',text:'¿Qué alimento descubre Gregorio que le produce placer en su nueva forma?',options:['A) La leche con azúcar','B) El pan con mantequilla','C) Los alimentos podridos y las legumbres rancias','D) La carne cocida'],correct:2,explanation:'Grete le lleva legumbres de días atrás, medio podridas, huesos, pasas: son estos alimentos los que Gregorio devora con avidez, mientras que los frescos le repugnan.'},
+  {id:'p5',skill:'localizar',text:'¿Qué objeto del cuarto de Gregorio protege con su propio cuerpo cuando las mujeres quieren sacarlo?',options:['A) Su escritorio','B) Un retrato de una mujer envuelta en pieles','C) Un baúl con herramientas','D) El sofá'],correct:1,explanation:'El texto dice que Gregorio trepa hasta el retrato de la mujer envuelta en pieles y se aferra al cristal para que no se lo lleven.'},
+  {id:'p6',skill:'localizar',text:'¿Qué arma usa el padre para atacar a Gregorio en el capítulo III?',options:['A) Un bastón','B) Manzanas del frutero','C) Un periódico enrollado','D) Una silla'],correct:1,explanation:'"Se había llenado los bolsillos con las manzanas del frutero que estaba sobre el aparador, y se las lanzaba una tras otra."'},
+  {id:'p7',skill:'localizar',text:'¿Cuántos huéspedes se instalan en casa de los Samsa?',options:['A) Dos','B) Cuatro','C) Tres','D) Uno'],correct:2,explanation:'"Habían adoptado la costumbre de meter allí las cosas... uno de los cuartos de la casa había sido alquilado a tres huéspedes."'},
+  {id:'p8',skill:'localizar',text:'¿A qué hora muere Gregorio?',options:['A) Al amanecer, cuando sale el sol','B) A medianoche','C) A las tres de la madrugada','D) Al mediodía'],correct:2,explanation:'"Permaneció en un estado de apacible meditación... hasta que el reloj de la iglesia dio las tres de la madrugada."'},
+  {id:'p9',skill:'localizar',text:'¿Qué frase usa la asistenta para anunciar la muerte de Gregorio?',options:['A) "El joven ha fallecido"','B) "¡Ha estirado la pata!"','C) "Gregorio está muerto"','D) "Ya no respira"'],correct:1,explanation:'La asistenta anuncia la muerte con brutalidad coloquial: "¡Ha estirado la pata!"'},
+  {id:'p10',skill:'localizar',text:'¿Qué instrumento musical toca Grete?',options:['A) Piano','B) Flauta','C) Violín','D) Guitarra'],correct:2,explanation:'Grete "era muy aficionada a la música y tocaba el violín con gran entusiasmo."'},
+  // INTERPRETAR (10)
+  {id:'p11',skill:'interpretar',text:'La transformación de Gregorio en insecto desde la primera línea, sin explicaciones, tiene como efecto principal:',options:['A) Crear misterio sobre el origen sobrenatural del hecho','B) Naturalizar lo absurdo y forzar al lector a centrarse en las consecuencias humanas','C) Mostrar que el mundo de Kafka es mágico y fantástico','D) Generar compasión inmediata por Gregorio'],correct:1,explanation:'Kafka no ofrece ninguna explicación. Al presentar la metamorfosis como un hecho cotidiano, el foco se desplaza del "cómo" al "qué consecuencias tiene en las relaciones humanas".'},
+  {id:'p12',skill:'interpretar',text:'El hecho de que el padre adopte un uniforme de bancario y no se lo quite ni en casa puede interpretarse como:',options:['A) Un hábito de higiene','B) La necesidad de mantener siempre la autoridad y el rol que la crisis le ha devuelto','C) Obediencia a las reglas del banco donde trabaja','D) Una forma de mostrar su éxito económico'],correct:1,explanation:'El uniforme es una coraza simbólica: el padre se aferra a él porque representa la autoridad y el rol que recuperó gracias —irónicamente— a la tragedia de su hijo.'},
+  {id:'p13',skill:'interpretar',text:'La pregunta de Gregorio "¿sería una fiera, que la música le emocionaba de aquel modo?" sirve principalmente para:',options:['A) Demostrar que los animales también aprecian la música','B) Plantear que la sensibilidad artística es evidencia de humanidad persistente','C) Mostrar la confusión de Gregorio sobre su propia naturaleza','D) Introducir un debate filosófico sobre el arte'],correct:1,explanation:'Gregorio usa la emoción ante la música como criterio para determinar si sigue siendo humano. Es la paradoja central: si puede sentir así, ¿puede ser una fiera?'},
+  {id:'p14',skill:'interpretar',text:'La conducta del gerente al llegar a la casa de Gregorio puede leerse como una crítica a:',options:['A) La ignorancia de la clase alta','B) La deshumanización del sistema laboral capitalista','C) La falta de solidaridad entre compañeros de trabajo','D) Las costumbres formales de la época'],correct:1,explanation:'El gerente acude en persona ante la primera falta, insinuando fraude. Esto revela un sistema donde los trabajadores son sospechosos perpetuos y no tienen derecho a ser frágiles.'},
+  {id:'p15',skill:'interpretar',text:'El deterioro progresivo de la habitación de Gregorio (suciedad, trastos, polvo) simboliza principalmente:',options:['A) La pobreza económica de la familia','B) La degradación del estatus de Gregorio dentro del núcleo familiar','C) La incapacidad de la asistenta para limpiar bien','D) El paso natural del tiempo en una habitación cerrada'],correct:1,explanation:'El estado de la habitación es un reflejo directo del lugar que Gregorio ocupa en la familia: a medida que lo abandonan, la suciedad crece. Es su espacio y su espejo.'},
+  {id:'p16',skill:'interpretar',text:'El hecho de que la madre quiera conservar los muebles de Gregorio mientras Grete prefiere quitarlos refleja:',options:['A) Diferencias generacionales en el gusto estético','B) Dos actitudes ante la humanidad de Gregorio: esperanza vs. pragmatismo','C) Un conflicto económico sobre el valor de los muebles','D) La diferente relación afectiva de cada una con Gregorio'],correct:1,explanation:'Los muebles representan la esperanza de recuperación (madre) vs. la adaptación a una nueva realidad sin retorno (Grete). Es un debate sobre si Gregorio sigue siendo humano o ya es definitivamente otra cosa.'},
+  {id:'p17',skill:'interpretar',text:'La ironía de que la asistenta sea la única sin miedo ante Gregorio sirve para:',options:['A) Mostrar que es una persona valiente','B) Contrastar la pretendida normalidad burguesa con la indiferencia pragmática de quien no tiene lazos ni prejuicios','C) Revelar que Gregorio no es tan aterrador','D) Añadir un toque de humor a la tragedia'],correct:1,explanation:'La asistenta, sin relación afectiva con Gregorio, trata el asunto con pragmatismo sin adornos. Su falta de horror contrasta con el espanto de la familia, sugiriendo que el miedo familiar tiene mucho de culpa y convención social.'},
+  {id:'p18',skill:'interpretar',text:'El discurso de Grete —"esto no puede seguir así... hay que deshacerse de él"— representa:',options:['A) La crueldad natural de los adolescentes','B) El punto de quiebre en que el amor filial cede ante el agotamiento y el instinto de supervivencia','C) La obediencia de Grete a los deseos secretos del padre','D) Una decisión tomada sin reflexión ni dolor'],correct:1,explanation:'Grete no es cruel por naturaleza; es una persona joven que ha llegado al límite. Su discurso es doloroso precisamente porque viene de quien más amó a Gregorio. Representa la victoria del utilitarismo sobre el afecto.'},
+  {id:'p19',skill:'interpretar',text:'La muerte voluntaria de Gregorio puede interpretarse como:',options:['A) Un suicidio provocado por la desesperación y el dolor físico','B) Un acto de amor y sacrificio: Gregorio muere para liberar a su familia','C) Una consecuencia inevitable de su debilidad física','D) Un acto de rebeldía contra su familia'],correct:1,explanation:'Gregorio decide morir convencido de que es lo mejor para su familia. Su último pensamiento es de amor por ellos. Kafka presenta esto como altruismo, lo que hace aún más perturbadora la reacción de alivio familiar.'},
+  {id:'p20',skill:'interpretar',text:'El final optimista de la familia —el paseo en tranvía, los planes de futuro— cumple la función de:',options:['A) Mostrar que la familia ha superado sanamente una tragedia','B) Satirizar la superficialidad del duelo y el utilitarismo de las relaciones familiares','C) Dar esperanza al lector tras una historia oscura','D) Demostrar la resiliencia humana ante la adversidad'],correct:1,explanation:'El optimismo final es deliberadamente perturbador. La familia no ha sufrido ni reflexionado: simplemente se libró de un problema. Es la sátira más brutal de Kafka sobre el amor familiar basado en la utilidad.'},
+  // INFERIR (10)
+  {id:'p21',skill:'inferir',text:'A partir del comportamiento del padre durante los primeros capítulos (debilidad, batín, sillón), se puede inferir que:',options:['A) Siempre fue un hombre débil sin ambiciones','B) La dependencia económica de Gregorio lo había privado de responsabilidad y con ello de vitalidad','C) El padre estaba enfermo antes de la transformación','D) El padre no amaba a Gregorio y esperaba que algo malo le pasara'],correct:1,explanation:'El padre era pasivo porque no necesitaba ser activo: Gregorio sostenía todo. Sin ese sostén, debe asumir un rol que lo revitaliza, aunque en forma autoritaria. La dependencia había sido mutua y mutilante.'},
+  {id:'p22',skill:'inferir',text:'De la descripción de la vida de Gregorio antes de la transformación, se puede inferir que:',options:['A) Era un hombre completamente feliz con su trabajo','B) Ya vivía una forma de alienación: su vida no le pertenecía, era del trabajo y la familia','C) Planeaba cambiar de trabajo el año siguiente','D) Tenía una vida social activa fuera del trabajo'],correct:1,explanation:'Gregorio trabajaba sin descanso, nunca salía, su única distracción era la carpintería, y existía únicamente para pagar la deuda paterna. Ya estaba transformado en "instrumento" antes de convertirse en insecto.'},
+  {id:'p23',skill:'inferir',text:'La herida de la manzana que nunca sana en la espalda de Gregorio permite inferir que:',options:['A) Los insectos se curan más lentamente que los humanos','B) El daño causado por el padre es permanente e irreversible, como el rechazo familiar','C) La manzana estaba envenenada','D) Gregorio no recibe atención médica adecuada'],correct:1,explanation:'La herida que no cicatriza es un símbolo narrativo: representa el daño irreversible que la violencia paterna (y el abandono familiar) ha causado. No es solo física.'},
+  {id:'p24',skill:'inferir',text:'El hecho de que Gregorio escuche las conversaciones familiares pegado a la puerta, pero nadie hable directamente con él, permite inferir que:',options:['A) Gregorio ya no entiende el lenguaje humano','B) La familia ha dejado de considerarlo un interlocutor válido pese a mantener su conciencia','C) Gregorio prefiere no relacionarse con su familia','D) Las puertas de la casa aíslan el sonido'],correct:1,explanation:'Gregorio entiende perfectamente todo lo que dicen. Sin embargo, la familia habla en su ausencia porque ya no lo consideran un ser con quien dialogar. Esta asimetría es el núcleo de la tragedia.'},
+  {id:'p25',skill:'inferir',text:'La actitud de Grete ante la asistenta —prohibiéndole que limpie la habitación de Gregorio— permite inferir que:',options:['A) Grete no confía en la asistenta','B) El cuidado de Gregorio le otorga a Grete un rol e identidad que no quiere ceder','C) La habitación de Gregorio requiere un cuidado especial','D) Grete sigue amando a Gregorio y quiere protegerlo'],correct:1,explanation:'Grete "se había acostumbrado a considerarse la experta de la familia en lo que a Gregorio se refería." Este monopolio sobre el cuidado es también un monopolio sobre la identidad y el poder dentro del hogar.'},
+  {id:'p26',skill:'inferir',text:'Del hecho de que Gregorio nunca hubiera podido mandar a Grete al conservatorio, se puede inferir:',options:['A) Que no creía en el talento de su hermana','B) Que pese a sus intenciones, la deuda familiar consumía todos los recursos y sueños de Gregorio','C) Que el conservatorio era demasiado caro para cualquier familia','D) Que los padres se oponían a que Grete estudiara música'],correct:1,explanation:'Gregorio planeaba anunciarlo en Navidad, pero "como un hermoso sueño, en cuya realización no se podía ni soñar." La deuda lo atrapaba incluso en sus aspiraciones más íntimas.'},
+  {id:'p27',skill:'inferir',text:'El hecho de que los huéspedes sean "muy formales", lleven barba y exijan orden escrupuloso permite inferir que representan:',options:['A) Personajes secundarios sin importancia simbólica','B) La mirada normalizadora de la sociedad burguesa que no tolera lo diferente','C) Personas peligrosas con intenciones ocultas','D) Amigos del padre que le ayudan económicamente'],correct:1,explanation:'Los tres huéspedes barbudos son una figura colectiva: la sociedad "respetable" que exige orden, norma y normalidad. Ante lo anormal (Gregorio), reaccionan con indignación moral y amenaza económica.'},
+  {id:'p28',skill:'inferir',text:'El pasaje en que Gregorio piensa en el conservatorio de Grete justo mientras avanza hacia ella en el comedor (cap. IV) sugiere:',options:['A) Que Gregorio ha recuperado su conciencia humana momentáneamente','B) Que incluso en su estado más degradado, los vínculos afectivos y los sueños humanos persisten en Gregorio','C) Que Gregorio quiere hablar con Grete sobre el dinero','D) Que la música le recuerda sus viajes de negocios'],correct:1,explanation:'En su momento más "animal" (arrastrarse cubierto de polvo), Gregorio tiene su pensamiento más íntimamente humano: quería contarle a Grete sobre el conservatorio. La humanidad no se ha ido; nadie la puede ver ya.'},
+  {id:'p29',skill:'inferir',text:'Que la familia no pueda mudarse, pese a que el piso es demasiado grande, permite inferir que:',options:['A) No tienen dinero para mudarse','B) Mudarse significaría admitir públicamente la desgracia, lo cual les resulta inaceptable por orgullo social','C) Gregorio les impide físicamente mudarse','D) El contrato de arrendamiento no les permite hacerlo'],correct:1,explanation:'El texto lo dice explícitamente: mudarse "les hubiera obligado a asumir plenamente el hecho de que habían sido alcanzados por una desgracia inaudita." El orgullo social los ata al lugar tanto como Gregorio.'},
+  {id:'p30',skill:'inferir',text:'El hecho de que Gregorio piense con "emoción y cariño" en los suyos justo antes de morir permite inferir que:',options:['A) Ha perdonado a su familia completamente','B) Su amor familiar permanece intacto hasta el final, pese al abandono que sufrió','C) Está confuso a causa del dolor','D) No comprende que su familia lo ha rechazado'],correct:1,explanation:'Gregorio muere amando a su familia. Comprende y acepta el rechazo. Esto es lo que hace su muerte especialmente trágica: él sigue siendo más humano que quienes lo rodean.'},
+  // EVALUAR (10)
+  {id:'p31',skill:'evaluar',text:'¿Cuál de los siguientes juicios sobre el personaje de Grete es más defendible a partir del texto?',options:['A) Grete es una persona cruel y egoísta desde el principio','B) Grete comienza con amor genuino pero acaba rendida ante la presión de la situación familiar','C) Grete siempre supo que debía deshacerse de Gregorio','D) Grete es el personaje más inocente de la novela'],correct:1,explanation:'Grete evoluciona: comienza como la cuidadora más dedicada y termina pronunciando el veredicto de expulsión. Su arco muestra el agotamiento humano ante una situación imposible, no la crueldad innata.'},
+  {id:'p32',skill:'evaluar',text:'¿Cuál es el juicio más apropiado sobre el final de la novela?',options:['A) Es esperanzador: la familia logra superar la tragedia','B) Es profundamente irónico y satírico: el optimismo familiar hace aún más brutal la critica al utilitarismo','C) Es realista: así reaccionan las personas ante las pérdidas','D) Es incongruente con el tono del resto de la obra'],correct:1,explanation:'El final es deliberadamente incómodo. La alegría de la familia tras la muerte de Gregorio es la sátira más contundente de Kafka: muestra que el amor familiar en esta sociedad es condicional y utilitario.'},
+  {id:'p33',skill:'evaluar',text:'La metamorfosis de Gregorio puede entenderse mejor como:',options:['A) Un hecho sobrenatural inexplicable','B) La materialización de una alienación preexistente que ya lo separaba de su humanidad social','C) Un castigo divino por su vida materialista','D) El resultado de una enfermedad física desconocida'],correct:1,explanation:'Gregorio ya estaba "transformado" antes del capítulo uno: vivía para el trabajo, sin identidad propia, invisible para su familia salvo como proveedor. La metamorfosis física solo hace visible lo que ya era.'},
+  {id:'p34',skill:'evaluar',text:'¿Cuál de los siguientes argumentos es más válido para sostener que "La Metamorfosis" es una crítica al capitalismo?',options:['A) Los personajes son ricos y no tienen problemas económicos','B) Gregorio pierde todo valor humano cuando deja de producir económicamente, lo que revela una sociedad que mide a las personas por su utilidad','C) Kafka era un pensador marxista que rechazaba el trabajo','D) La novela muestra que el trabajo es una actividad degradante en sí misma'],correct:1,explanation:'La lógica capitalista reduce a las personas a su valor de producción. Cuando Gregorio no puede trabajar, deja de ser humano para su familia y para el sistema. Esta es la crítica estructural de Kafka.'},
+  {id:'p35',skill:'evaluar',text:'Evalúa la siguiente afirmación: "El padre Samsa es el villano de la novela."',options:['A) Es completamente correcta: el padre es el único responsable del sufrimiento de Gregorio','B) Es parcialmente correcta: el padre es violento, pero su conducta refleja una dinámica familiar y social más compleja','C) Es incorrecta: el padre actúa con amor aunque de forma equivocada','D) Es irrelevante: en la novela no hay villanos ni héroes definidos'],correct:1,explanation:'El padre es violento e irracional, pero también es producto de un sistema que premia la autoridad y castiga la debilidad. Reducirlo a "villano" simplifica la crítica de Kafka, que apunta a toda la estructura familiar y social.'},
+  {id:'p36',skill:'evaluar',text:'¿Cuál de estas interpretaciones de la novela es más consistente con el texto completo?',options:['A) Es una fábula sobre la importancia de la salud mental','B) Es una alegoría de la alienación moderna del trabajador y la desintegración de los lazos afectivos utilitarios','C) Es una historia de terror psicológico sin mensaje social','D) Es una autobiografía encubierta de Kafka'],correct:1,explanation:'La novela combina alienación laboral (Gregorio como engranaje desechable), relaciones familiares utilitarias, y la pérdida de identidad. La alegoría social es la interpretación más coherente con todos los elementos del texto.'},
+  {id:'p37',skill:'evaluar',text:'¿Qué tan válida es la afirmación de que Gregorio es el único personaje simpático de la novela?',options:['A) Totalmente válida: todos los demás son fríos e indiferentes','B) Parcialmente válida: Grete y la madre muestran afecto genuino en distintos momentos, aunque no sostenido','C) Inválida: Gregorio no genera simpatía porque es un insecto','D) Inválida: el gerente también es comprensible en su rol'],correct:1,explanation:'Grete cuida genuinamente a Gregorio durante meses. La madre quiere verlo y conservar sus muebles. Ambas muestran amor real antes de ceder. La condena de todos los personajes salvo Gregorio es una simplificación.'},
+  {id:'p38',skill:'evaluar',text:'Evalúa si la muerte de Gregorio es un "final feliz" para él:',options:['A) No, porque Gregorio muere en soledad y sufrimiento','B) En cierto modo sí: Gregorio muere en paz, aceptando su destino y con amor por su familia, liberado del sufrimiento','C) No puede determinarse porque Gregorio no puede expresar sus sentimientos al final','D) Sí, pero solo porque ya había perdido toda conciencia humana'],correct:1,explanation:'Kafka describe la muerte de Gregorio como "apacible meditación." Gregorio no muere desesperado: muere aceptando, amando, en calma. En ese sentido, hay una serenidad que contrasta con el horror de la situación.'},
+  {id:'p39',skill:'evaluar',text:'¿Cuál es el efecto más importante que produce la narración en tercera persona limitada (desde la perspectiva de Gregorio) en esta novela?',options:['A) Permite al lector conocer los pensamientos de todos los personajes','B) Genera empatía con Gregorio al compartir su conciencia, haciendo más perturbador el contraste con cómo lo tratan los demás','C) Aumenta el suspenso porque el lector no sabe qué piensa la familia','D) Es la técnica narrativa más común y no tiene efecto especial'],correct:1,explanation:'Al acceder a la conciencia de Gregorio, el lector comprueba que sigue siendo completamente humano en su interior. Esto hace más perturbador el trato que recibe: vemos el abismo entre lo que Gregorio es y cómo lo ven.'},
+  {id:'p40',skill:'evaluar',text:'¿Cuál de los siguientes es el argumento más sólido para afirmar que la novela tiene vigencia en el siglo XXI?',options:['A) Los insectos siguen existiendo en el mundo moderno','B) La alienación laboral, la deshumanización del trabajador y las relaciones familiares utilitarias son realidades contemporáneas','C) Las relaciones familiares son idénticas en todas las épocas','D) La literatura clásica siempre es relevante independientemente del contenido'],correct:1,explanation:'La crítica de Kafka al capitalismo deshumanizante y al utilitarismo afectivo es más pertinente que nunca en una era de precarización laboral, burnout y redes de apoyo frágiles. La novela habla de hoy.'},
+  // ANALIZAR-SINTETIZAR (10)
+  {id:'p41',skill:'analizar',text:'Analiza la evolución del personaje de Grete a lo largo de la novela. ¿Qué patrón describe mejor su arco?',options:['A) De indiferente a comprometida','B) De comprometida y amorosa a agotada y rechazante','C) De rechazante a amorosa','D) Constante en su amor a lo largo de toda la obra'],correct:1,explanation:'Grete comienza siendo la más dedicada (cuidado de Gregorio, selección de alimentos, limpieza) y termina pronunciando la sentencia de expulsión. Su arco completo es el del agotamiento del amor ante lo insostenible.'},
+  {id:'p42',skill:'analizar',text:'¿Qué elemento une los tres momentos de violencia física en la novela (bastón del padre en cap. I, empujón que lastima en cap. I, manzanas en cap. III)?',options:['A) Todos ocurren cuando Gregorio intenta huir de la casa','B) Todos son ejecutados por el padre y responden a la amenaza que Gregorio representa para el orden del hogar','C) Todos ocurren de noche','D) Todos involucran a la madre como testigo que intenta detenerlos'],correct:1,explanation:'La violencia es siempre del padre, siempre en respuesta a la presencia perturbadora de Gregorio en espacios fuera de su habitación. El padre es el guardián del orden doméstico y ejerce violencia para restablecerlo.'},
+  {id:'p43',skill:'analizar',text:'Sintetiza el tema de las puertas en la novela. ¿Cuál es su función simbólica predominante?',options:['A) Son elementos decorativos del apartamento de los Samsa','B) Representan la frontera entre la humanidad de Gregorio y su familia; controlar las puertas es controlar el acceso a la vida familiar','C) Sirven para crear suspenso narrativo','D) Simbolizan la libertad que Gregorio desea pero nunca alcanza'],correct:1,explanation:'Las puertas funcionan como límites simbólicos: abiertas significan inclusión, cerradas, exclusión. Gregorio abre su puerta con enorme esfuerzo (quiere conectar); la familia la cierra para protegerse de él. La última puerta se cierra definitivamente tras su regreso final.'},
+  {id:'p44',skill:'analizar',text:'¿Cuál es la relación entre la pérdida de los muebles y la pérdida de identidad de Gregorio?',options:['A) No hay relación: los muebles son solo objetos materiales','B) Los muebles son el vínculo material con su pasado humano; perderlos acelera el olvido de su condición anterior','C) Los muebles le molestaban porque impedían que trepara libremente','D) Los muebles representan la riqueza familiar perdida'],correct:1,explanation:'La madre lo intuye: los muebles familiares recuerdan a Gregorio que fue humano. Sin ellos, en un cuarto vacío, olvida más rápido. La pérdida de objetos es también pérdida de memoria y de sí mismo.'},
+  {id:'p45',skill:'analizar',text:'Analiza el papel de la comida en la novela. ¿Qué función cumple en el desarrollo del personaje de Gregorio?',options:['A) Solo muestra la generosidad de Grete con su hermano','B) Los cambios en los gustos alimenticios de Gregorio marcan su progresiva distancia de lo humano y su adaptación a la nueva naturaleza','C) La comida es un tema secundario sin importancia simbólica','D) Revela la pobreza económica de la familia Samsa'],correct:1,explanation:'Al principio la leche (humana) le repugna; prefiere basura y podredumbre. Al final, casi no come. Este arco alimenticio traza su transformación interna: cada cambio gastronómico es un paso más lejos de la humanidad.'},
+  {id:'p46',skill:'analizar',text:'¿Cuál es la función estructural del capítulo V (el final) en relación con el resto de la novela?',options:['A) Resolver positivamente los conflictos planteados en la obra','B) Completar la sátira: mostrar que la vida familiar y social continúa sin perturbación, como si Gregorio nunca hubiera existido','C) Añadir un epilogo sentimental que equilibra la oscuridad de los capítulos anteriores','D) Presentar un giro narrativo inesperado'],correct:1,explanation:'El capítulo final es la conclusión lógica de la sátira kafkiana. La familia no llora, planifica. Grete florece. La vida continúa. Esto demuestra que Gregorio nunca fue verdaderamente necesario como persona, solo como proveedor.'},
+  {id:'p47',skill:'analizar',text:'Sintetiza la función del personaje del gerente en la estructura narrativa:',options:['A) Es el antagonista principal de la novela','B) Aparece brevemente para representar la lógica del sistema laboral y desaparecer, mostrando que ese sistema no tiene rostro ni comprensión humana','C) Sirve para que el lector conozca la situación laboral de Gregorio','D) Es el único personaje que reacciona con ecuanimidad ante la situación'],correct:1,explanation:'El gerente cumple una función estructural precisa: introduce el tema del mundo laboral deshumanizante, reacciona con horror ante Gregorio y desaparece. Su presencia breve pero impactante establece que el sistema no puede contener lo que no encaja.'},
+  {id:'p48',skill:'analizar',text:'¿Cómo se relacionan la alienación de Gregorio antes de la metamorfosis y su transformación física posterior?',options:['A) Son hechos independientes sin relación causal','B) La transformación física es la exteriorización de una alienación preexistente: Gregorio ya era un "insecto" social antes de serlo literalmente','C) La alienación es consecuencia de la transformación, no causa','D) Solo la transformación física crea la alienación de Gregorio'],correct:1,explanation:'Kafka establece que Gregorio ya era invisible, instrumentalizado y sin identidad propia antes de la metamorfosis. La transformación solo hace visible lo que la sociedad y la familia ya habían hecho de él.'},
+  {id:'p49',skill:'analizar',text:'Analiza la función del violín de Grete como elemento simbólico en la novela:',options:['A) Representa el talento artístico de Grete','B) Es el símbolo de la conexión con lo genuinamente humano (el arte) y el último vínculo emocional entre Gregorio y su hermana','C) Introduce un conflicto económico sobre el conservatorio','D) Sirve para demostrar que la familia tiene una vida cultural rica'],correct:1,explanation:'El violín es el hilo que conecta a Gregorio con su humanidad perdida. La escena musical es el clímax emocional: Gregorio se acerca movido por el arte, la única cosa que todavía lo toca genuinamente.'},
+  {id:'p50',skill:'analizar',text:'Sintetiza el argumento central de "La Metamorfosis" en términos de su crítica social:',options:['A) Las relaciones familiares son siempre disfuncionales e hipócritas','B) Una sociedad que mide el valor humano por la productividad económica condena a sus miembros a la deshumanización cuando dejan de ser útiles','C) La soledad y el aislamiento son inevitables para los seres sensibles','D) El capitalismo destruye siempre a los trabajadores más dedicados'],correct:1,explanation:'La novela plantea que cuando el valor de una persona se reduce a su función productiva, pierde su humanidad ante los demás en el momento en que deja de funcionar. Gregorio es el caso extremo de esta lógica social.'}
+];
+
+// =============================================
+// GLOSARIO INTELIGENTE — DEFINICIONES
+// =============================================
+const GLOSARIO_IA = {
+  'alienación': {def:'Estado en que una persona se siente extraña a sí misma, a los demás o a la sociedad, sin control sobre su propia vida.',example:'Gregorio vive una alienación total: su vida pertenece al trabajo y a la familia, no a sí mismo.'},
+  'metamorfosis': {def:'Transformación profunda de una persona, ser vivo o cosa. En literatura, puede ser física o simbólica.',example:'La metamorfosis de Gregorio es física (insecto) y simbólica (pierde su lugar en la sociedad).'},
+  'existencialismo': {def:'Corriente filosófica que estudia la existencia humana, la libertad y la búsqueda de sentido.',example:'La angustia de Gregorio ante su situación refleja la pregunta existencialista: ¿quién soy sin mi rol social?'},
+  'absurdo': {def:'Situación o idea que carece de lógica o razón, especialmente en el contexto de la existencia humana.',example:'El absurdo kafkiano se expresa en que la transformación en insecto nunca es cuestionada: simplemente ocurre.'},
+  'caparazón': {def:'Cubierta dura que protege el cuerpo de ciertos animales, como los escarabajos.',example:'Gregorio tiene un duro caparazón en la espalda que le impide girarse en la cama.'},
+  'burocracia': {def:'Sistema administrativo complejo con muchos procedimientos y normas, frecuentemente asociado a la ineficiencia.',example:'En la obra de Kafka, la burocracia representa el poder impersonal que aplasta al individuo.'},
+  'utilitarismo': {def:'Doctrina ética que valora las acciones por su utilidad y resultados, no por principios morales.',example:'La familia Samsa aplica un utilitarismo implícito: Gregorio vale mientras trabaja.'},
+  'expresionismo': {def:'Movimiento artístico que busca representar emociones y estados interiores distorsionando la realidad exterior.',example:'La transformación de Gregorio es expresionista: lo interior (alienación) se convierte en exterior (insecto).'},
+  'culpa': {def:'Sentimiento de responsabilidad por una acción dañina, real o imaginada.',example:'Gregorio siente culpa por no poder trabajar y sostener a su familia.'},
+  'identidad': {def:'Conjunto de características que definen a una persona y la distinguen de las demás.',example:'La pérdida de identidad de Gregorio es gradual: pierde trabajo, voz, muebles, y finalmente la vida.'},
+  'capitalismo': {def:'Sistema económico basado en la propiedad privada y la obtención de ganancias.',example:'La novela critica el capitalismo al mostrar que un trabajador pierde su valor humano cuando deja de producir.'},
+  'mandíbulas': {def:'Huesos de la boca. En insectos, piezas bucales para sujetar y masticar.',example:'Gregorio usa sus mandíbulas para girar la llave de su habitación, lastimándose.'},
+  'repugnancia': {def:'Asco profundo o rechazo intenso ante algo que se considera desagradable o repulsivo.',example:'El gerente contempla a Gregorio con repugnancia y huye de la casa.'},
+  'agonía': {def:'Estado de sufrimiento intenso previo a la muerte.',example:'La muerte de Gregorio, paradójicamente, no es una agonía: es una calma serena.'},
+  'violín': {def:'Instrumento musical de cuerdas frotadas, asociado en la novela a la humanidad y el arte.',example:'El violín de Grete es el símbolo del arte y la única cosa que aún conmueve a Gregorio.'},
+  'parasitismo': {def:'Relación en que un organismo vive a expensas de otro. Grete acusa a Gregorio de ser un parásito.',example:'Grete invierte la situación: Gregorio, que siempre sostuvo a la familia, ahora es visto como parásito.'},
+  'trasformación': {def:'Véase metamorfosis. Cambio radical de forma o naturaleza.',example:'La transformación de Gregorio es el evento central de la novela.'},
+  'padre': {def:'Figura paterna. En Kafka, representa la autoridad opresiva y la violencia del poder familiar.',example:'El padre de Gregorio encarna la violencia patriarcal: usa bastón y manzanas contra su hijo.'},
+};
+
+// =============================================
+// ESTADO DE LA APP
+// =============================================
+let state = {
+  currentSection: 'antes',
+  currentChapter: null,
+  timerInterval: null,
+  timerSeconds: 0,
+  timerRunning: false,
+  paesMode: 'normal',
+  paesExamInterval: null,
+  paesExamSeconds: 5400,
+  paesExamAnswers: {},
+  errorRepaso: [],
+  errorRepasoIdx: 0,
+  errorRepasoCorrect: 0
+};
+
+// =============================================
+// UTILIDADES
+// =============================================
+function save(key, val){ try{ localStorage.setItem('kafka_'+key, JSON.stringify(val)); }catch(e){} }
+function load(key, def=null){ try{ const v=localStorage.getItem('kafka_'+key); return v?JSON.parse(v):def; }catch(e){ return def; } }
+function toast(msg, type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show '+(type||'');
+  setTimeout(()=>t.className='',2500);
+}
+function $(id){ return document.getElementById(id); }
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('open'); }
+
+// NAV
+function showSection(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const s=$('section-'+name);
+  if(s) s.classList.add('active');
+  const n=document.querySelector(`[data-section="${name}"]`);
+  if(n) n.classList.add('active');
+  state.currentSection=name;
+  document.getElementById('sidebar').classList.remove('open');
+  // Init sections
+  if(name==='glosario') renderGlosario();
+  if(name==='errores') renderErrorStats();
+  if(name==='timeline') renderTimeline();
+  if(name==='personajes') renderPersonajes();
+  if(name==='resumenes') renderResumenes();
+  if(name==='despues') renderDespues();
+  if(name==='paes') renderPaes();
+  if(name==='durante') renderChapterList();
+}
+
+// TABS
+function showTab(group, name){
+  const prefix=group+'-';
+  document.querySelectorAll(`[id^="${prefix}"]`).forEach(el=>el.classList.remove('active'));
+  const el=$(prefix+name);
+  if(el) el.classList.add('active');
+  // Tabs buttons
+  const tabContainers=document.querySelectorAll('.tabs');
+  tabContainers.forEach(tc=>{
+    const tabs=tc.querySelectorAll('.tab');
+    tabs.forEach(tab=>{
+      if(tab.getAttribute('onclick')&&tab.getAttribute('onclick').includes(`'${name}'`)){
+        tc.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        tab.classList.add('active');
+      }
+    });
+  });
+}
+
+// MODAL TABS
+function showModalTab(name){
+  ['notas','glosario-cap','resumen-cap','preguntas-cap'].forEach(t=>{
+    const el=$('modal-'+t);
+    if(el) el.classList.remove('active');
+  });
+  const el=$('modal-'+name);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.modal-tab').forEach(t=>{
+    t.classList.remove('active');
+    if(t.getAttribute('onclick')&&t.getAttribute('onclick').includes(`'${name}'`)){
+      t.classList.add('active');
+    }
+  });
+}
+
+// =============================================
+// ANTES DE LA LECTURA
+// =============================================
+function initAntes(){
+  // Reflexion preguntas
+  const wrap=$('reflexion-preguntas');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  const saved=load('reflexion',{});
+  REFLEXION_PREGUNTAS.forEach(q=>{
+    wrap.innerHTML+=`<div class="card">
+      <label>${q.text}</label>
+      <textarea id="rq-${q.id}" rows="4" placeholder="Tu reflexión...">${saved[q.id]||''}</textarea>
+    </div>`;
+  });
+  // Predicciones
+  const pwrap=$('predicciones-list');
+  if(pwrap){
+    const savedP=load('predicciones',{});
+    pwrap.innerHTML='';
+    PREDICCIONES_PROMPTS.forEach(p=>{
+      pwrap.innerHTML+=`<div class="card">
+        <label>${p.text}</label>
+        <textarea id="pred-${p.id}" rows="4" placeholder="Tu predicción...">${savedP[p.id]||''}</textarea>
+      </div>`;
+    });
+  }
+  updateAntesProgress();
+}
+
+function saveReflexion(){
+  const data={};
+  REFLEXION_PREGUNTAS.forEach(q=>{
+    const el=$('rq-'+q.id);
+    if(el) data[q.id]=el.value;
+  });
+  save('reflexion',data);
+  updateAntesProgress();
+  toast('Respuestas guardadas','success');
+  $('reflexion-status').textContent='Guardado: '+new Date().toLocaleTimeString();
+}
+
+function loadReflexion(){
+  const saved=load('reflexion',{});
+  REFLEXION_PREGUNTAS.forEach(q=>{
+    const el=$('rq-'+q.id);
+    if(el) el.value=saved[q.id]||'';
+  });
+  toast('Respuestas cargadas');
+}
+
+function savePredicciones(){
+  const data={};
+  PREDICCIONES_PROMPTS.forEach(p=>{
+    const el=$('pred-'+p.id);
+    if(el) data[p.id]=el.value;
+  });
+  save('predicciones',data);
+  updateAntesProgress();
+  toast('Predicciones guardadas','success');
+  $('pred-status').textContent='Guardado: '+new Date().toLocaleTimeString();
+}
+
+function updateAntesProgress(){
+  const ref=load('reflexion',{});
+  const pred=load('predicciones',{});
+  let filled=0, total=REFLEXION_PREGUNTAS.length+PREDICCIONES_PROMPTS.length;
+  REFLEXION_PREGUNTAS.forEach(q=>{ if(ref[q.id]&&ref[q.id].trim()) filled++; });
+  PREDICCIONES_PROMPTS.forEach(p=>{ if(pred[p.id]&&pred[p.id].trim()) filled++; });
+  const pct=Math.round((filled/total)*100);
+  $('antes-pct').textContent=pct+'%';
+  const ring=$('antes-ring');
+  if(ring){ const dash=150.8; ring.style.strokeDashoffset=dash-(dash*pct/100); }
+  updateGlobalProgress();
+}
+
+// =============================================
+// PROGRESS GLOBAL
+// =============================================
+function updateGlobalProgress(){
+  let score=0, max=0;
+  // Antes: reflexion + predicciones
+  max+=REFLEXION_PREGUNTAS.length+PREDICCIONES_PROMPTS.length;
+  const ref=load('reflexion',{}); REFLEXION_PREGUNTAS.forEach(q=>{ if(ref[q.id]&&ref[q.id].trim()) score++; });
+  const pred=load('predicciones',{}); PREDICCIONES_PROMPTS.forEach(p=>{ if(pred[p.id]&&pred[p.id].trim()) score++; });
+  // Chapters
+  max+=CHAPTERS.length;
+  const done=load('chapters_done',[]);
+  score+=done.length;
+  // PAES
+  const paesAnswers=load('paes_answers',{});
+  max+=10;
+  score+=Math.round((Object.keys(paesAnswers).length/PAES_QUESTIONS.length)*10);
+  const pct=Math.min(100,Math.round((score/max)*100));
+  $('progress-bar-fill').style.width=pct+'%';
+  $('progress-label').textContent=pct+'%';
+}
+
+// =============================================
+// DURANTE LA LECTURA
+// =============================================
+function renderChapterList(){
+  const wrap=$('chapter-list');
+  if(!wrap) return;
+  const done=load('chapters_done',[]);
+  wrap.innerHTML='';
+  CHAPTERS.forEach(ch=>{
+    const isDone=done.includes(ch.id);
+    wrap.innerHTML+=`<div class="chapter-card ${isDone?'done':''}" onclick="openChapter(${ch.id})">
+      <div class="chapter-num">${ch.id}</div>
+      <div class="chapter-info">
+        <h3>${ch.title}</h3>
+        <p>Páginas ${ch.pages} · ${ch.desc}</p>
+      </div>
+      <div class="chapter-status">
+        ${isDone?'<span class="badge badge-green">✓ Terminado</span>':'<span class="badge badge-accent">→ Iniciar</span>'}
+      </div>
+    </div>`;
+  });
+}
+
+function openChapter(id){
+  const ch=CHAPTERS.find(c=>c.id===id);
+  if(!ch) return;
+  state.currentChapter=ch;
+  $('modal-title').textContent=`${ch.title} — Págs. ${ch.pages}`;
+  // Load notes
+  const notes=load('cap_notes_'+ch.id,'');
+  $('cap-notas').value=notes;
+  // Load glossary saved
+  renderMiniGlosario(ch.id);
+  // Reset glossary input
+  $('mini-glos-input').value='';
+  $('mini-glos-result').innerHTML='';
+  // Load resumen
+  $('cap-resumen-content').innerHTML=ch.summary;
+  // Load preguntas
+  renderCapPreguntas(ch);
+  // Timer reset
+  timerReset();
+  showModalTab('notas');
+  $('chapter-modal').classList.add('open');
+}
+
+function closeModal(){
+  $('chapter-modal').classList.remove('open');
+  timerStop();
+}
+
+// TIMER
+function timerStart(){
+  if(state.timerRunning) return;
+  state.timerRunning=true;
+  state.timerInterval=setInterval(()=>{
+    state.timerSeconds++;
+    const m=Math.floor(state.timerSeconds/60).toString().padStart(2,'0');
+    const s=(state.timerSeconds%60).toString().padStart(2,'0');
+    $('timer-display').textContent=m+':'+s;
+  },1000);
+}
+function timerStop(){ clearInterval(state.timerInterval); state.timerRunning=false; }
+function timerReset(){ timerStop(); state.timerSeconds=0; $('timer-display').textContent='00:00'; }
+
+function saveCapNotes(){
+  if(!state.currentChapter) return;
+  const notes=$('cap-notas').value;
+  save('cap_notes_'+state.currentChapter.id, notes);
+  toast('Notas guardadas','success');
+}
+
+// MINI GLOSARIO
+function miniDefinir(){
+  const word=$('mini-glos-input').value.trim().toLowerCase();
+  if(!word){ toast('Escribe una palabra'); return; }
+  const entry=GLOSARIO_IA[word] || findGlosarioEntry(word);
+  let html='';
+  if(entry){
+    html=`<div class="glos-entry">
+      <div class="glos-word">${word.charAt(0).toUpperCase()+word.slice(1)}</div>
+      <div class="glos-def">${entry.def}</div>
+      <div class="glos-example">${entry.example}</div>
+    </div>`;
+    // Save to personal glossary
+    const personal=load('glosario_personal',[]);
+    if(!personal.find(p=>p.word===word)){
+      personal.push({word, def:entry.def, example:entry.example, chapId:state.currentChapter?.id});
+      save('glosario_personal',personal);
+    }
+    // Save to chapter glossary
+    if(state.currentChapter){
+      const chapGlos=load('cap_glos_'+state.currentChapter.id,[]);
+      if(!chapGlos.find(p=>p.word===word)){
+        chapGlos.push({word, def:entry.def, example:entry.example});
+        save('cap_glos_'+state.currentChapter.id, chapGlos);
+      }
+      renderMiniGlosario(state.currentChapter.id);
+    }
+  } else {
+    // Generate basic definition
+    const def=generateBasicDef(word);
+    html=`<div class="glos-entry">
+      <div class="glos-word">${word.charAt(0).toUpperCase()+word.slice(1)}</div>
+      <div class="glos-def">${def.def}</div>
+      <div class="glos-example">${def.example}</div>
+    </div>`;
+    const personal=load('glosario_personal',[]);
+    if(!personal.find(p=>p.word===word)){
+      personal.push({word, def:def.def, example:def.example, chapId:state.currentChapter?.id});
+      save('glosario_personal',personal);
+    }
+  }
+  $('mini-glos-result').innerHTML=html;
+}
+
+function findGlosarioEntry(word){
+  const base=GLOSARIO_BASE.find(g=>g.word.toLowerCase()===word);
+  if(base) return {def:base.def, example:base.example};
+  // Partial match
+  const partial=GLOSARIO_BASE.find(g=>g.word.toLowerCase().includes(word)||word.includes(g.word.toLowerCase()));
+  if(partial) return {def:partial.def, example:partial.example};
+  return null;
+}
+
+function generateBasicDef(word){
+  return {
+    def:`"${word}" es un término que aparece en el contexto de La Metamorfosis. Busca su definición en un diccionario para comprenderlo mejor en contexto.`,
+    example:`Esta palabra podría estar relacionada con los temas de alienación, identidad o familia presentes en la obra de Kafka.`
+  };
+}
+
+function renderMiniGlosario(chapId){
+  const el=$('mini-glos-saved');
+  if(!el) return;
+  const glos=load('cap_glos_'+chapId,[]);
+  if(glos.length===0){ el.innerHTML='<div class="text-sm text-muted">No has guardado palabras en este capítulo.</div>'; return; }
+  el.innerHTML=glos.map(g=>`<div class="glos-entry">
+    <div class="glos-word">${g.word}</div>
+    <div class="glos-def">${g.def}</div>
+    <div class="glos-example">${g.example}</div>
+  </div>`).join('');
+}
+
+// CAPÍTULO PREGUNTAS
+function renderCapPreguntas(ch){
+  const wrap=$('cap-preguntas-content');
+  const saved=load('cap_ans_'+ch.id,{});
+  const evaluated=load('cap_eval_'+ch.id,false);
+  let html='<div class="card"><h2>Preguntas del capítulo</h2><p class="text-muted text-sm">Responde todas las preguntas. Luego haz clic en "Evaluar".</p></div>';
+  ch.questions.forEach((q,i)=>{
+    if(q.type==='open'){
+      html+=`<div class="open-q-wrap">
+        <div class="open-q-meta">Pregunta ${i+1} · Reflexiva</div>
+        <div class="open-q-text">${q.text}</div>
+        <textarea id="capq-${i}" rows="5" placeholder="Tu respuesta..." ${evaluated?'disabled':''}>${saved[i]||''}</textarea>
+        <div id="capq-fb-${i}"></div>
+      </div>`;
+    } else {
+      const opts=['A','B','C','D'];
+      html+=`<div class="q-card">
+        <div class="q-num">Pregunta ${i+1} · PAES</div>
+        <div class="q-text">${q.text}</div>
+        <div class="q-options" id="capq-opts-${i}">
+          ${q.options.map((opt,j)=>`<div class="q-option ${saved[i]===j?'selected':''}" onclick="selectCapOpt(${i},${j},${ch.id})" data-idx="${j}">
+            <span class="opt-letter">${opts[j]}</span>${opt}
+          </div>`).join('')}
+        </div>
+        <div id="capq-fb-${i}"></div>
+      </div>`;
+    }
+  });
+  wrap.innerHTML=html;
+  if(evaluated){
+    const results=load('cap_eval_results_'+ch.id,{});
+    showCapResults(ch, results);
+  }
+}
+
+function selectCapOpt(qIdx, optIdx, chapId){
+  const saved=load('cap_ans_'+chapId,{});
+  saved[qIdx]=optIdx;
+  save('cap_ans_'+chapId, saved);
+  // Update UI
+  const opts=document.querySelectorAll(`#capq-opts-${qIdx} .q-option`);
+  opts.forEach(o=>o.classList.remove('selected'));
+  if(opts[optIdx]) opts[optIdx].classList.add('selected');
+}
+
+function evaluateCapPreguntas(){
+  const ch=state.currentChapter;
+  if(!ch) return;
+  const saved=load('cap_ans_'+ch.id,{});
+  // Save open answers
+  ch.questions.forEach((q,i)=>{
+    if(q.type==='open'){
+      const el=$('capq-'+i);
+      if(el) saved[i]=el.value;
+    }
+  });
+  save('cap_ans_'+ch.id, saved);
+  // Evaluate
+  const results={};
+  let correct=0;
+  ch.questions.forEach((q,i)=>{
+    if(q.type==='open'){
+      const answer=(saved[i]||'').toLowerCase();
+      const keywordsFound=q.keywords.filter(k=>answer.includes(k));
+      const pct=keywordsFound.length/q.keywords.length;
+      let level='wrong';
+      if(pct>=0.4) level='correct';
+      else if(pct>=0.2) level='partial';
+      results[i]={type:'open', level, found:keywordsFound, missing:q.keywords.filter(k=>!answer.includes(k)).slice(0,4)};
+      if(level==='correct') correct++;
+    } else {
+      const ans=saved[i];
+      const isCorrect=ans===q.correct;
+      results[i]={type:'paes', correct:isCorrect, selected:ans, correctIdx:q.correct};
+      if(isCorrect) correct++;
+      // Save error
+      if(!isCorrect && ans!==undefined){
+        addError({question:q.text, options:q.options, correct:q.correct, explanation:q.explanation, source:'cap'+ch.id});
+      }
+    }
+  });
+  save('cap_eval_'+ch.id, true);
+  save('cap_eval_results_'+ch.id, results);
+  showCapResults(ch, results);
+  $('btn-finish-chapter').style.display='inline-flex';
+  updateGlobalProgress();
+}
+
+function showCapResults(ch, results){
+  const fbWrap=$('cap-eval-result');
+  let html='<div class="card"><h2>Resultados</h2>';
+  ch.questions.forEach((q,i)=>{
+    const r=results[i];
+    if(!r) return;
+    if(r.type==='open'){
+      const cls=r.level==='correct'?'alert-correct':r.level==='partial'?'alert-partial':'alert-wrong';
+      const label=r.level==='correct'?'✓ Correcta':r.level==='partial'?'◐ Parcialmente correcta':'✗ Incompleta';
+      html+=`<div class="alert ${cls}">
+        <strong>Pregunta ${i+1}: ${label}</strong><br>
+        Conceptos encontrados: ${r.found.join(', ')||'ninguno'}<br>
+        ${r.missing.length?'Conceptos faltantes: '+r.missing.join(', '):''}
+      </div>`;
+    } else {
+      const opts=['A','B','C','D'];
+      const cls=r.correct?'alert-correct':'alert-wrong';
+      const label=r.correct?'✓ Correcta':'✗ Incorrecta';
+      html+=`<div class="alert ${cls}">
+        <strong>Pregunta ${i+1}: ${label}</strong><br>
+        ${r.correct?'':'Tu respuesta: '+opts[r.selected]+' · Correcta: '+opts[r.correctIdx]+'<br>'}
+        ${q.explanation}
+      </div>`;
+    }
+  });
+  html+='</div>';
+  fbWrap.innerHTML=html;
+}
+
+function finishChapter(){
+  const ch=state.currentChapter;
+  if(!ch) return;
+  const done=load('chapters_done',[]);
+  if(!done.includes(ch.id)){ done.push(ch.id); save('chapters_done',done); }
+  toast('¡Capítulo completado!','success');
+  closeModal();
+  renderChapterList();
+  updateGlobalProgress();
+}
+
+// =============================================
+// DESPUÉS DE LA LECTURA
+// =============================================
+function renderDespues(){
+  // Comparacion predicciones
+  const comp=$('comparacion-content');
+  if(comp){
+    const preds=load('predicciones',{});
+    let html='';
+    PREDICCIONES_PROMPTS.forEach(p=>{
+      const pred=preds[p.id]||'(sin respuesta)';
+      html+=`<div class="card">
+        <h3>${p.text}</h3>
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:10px;font-size:13px;color:var(--text2)">
+          <strong style="color:var(--text3);font-size:11px;display:block;margin-bottom:4px;font-family:var(--font-ui);text-transform:uppercase">Tu predicción</strong>
+          ${pred}
+        </div>
+        <label style="margin-top:8px">¿Qué ocurrió realmente?</label>
+        <textarea id="comp-${p.id}" rows="3" placeholder="Escribe qué pasó realmente...">${load('comparacion_'+p.id,'')}</textarea>
+        <button class="btn btn-sm btn-secondary" style="margin-top:8px" onclick="saveComparacion('${p.id}')">💾 Guardar</button>
+      </div>`;
+    });
+    comp.innerHTML=html||'<div class="card"><p class="text-muted">No tienes predicciones guardadas. Ve a la sección "Antes de leer" para agregarlas.</p></div>';
+  }
+  // Reflexion final
+  const rfwrap=$('reflexion-final-preguntas');
+  if(rfwrap){
+    const saved=load('reflexion_final',{});
+    rfwrap.innerHTML='';
+    REFLEXION_FINAL_PREGUNTAS.forEach(q=>{
+      rfwrap.innerHTML+=`<div class="card">
+        <label>${q.text}</label>
+        <textarea id="rf-${q.id}" rows="5" placeholder="Tu reflexión...">${saved[q.id]||''}</textarea>
+        <div id="rf-fb-${q.id}"></div>
+      </div>`;
+    });
+  }
+}
+
+function saveComparacion(pid){
+  const el=$('comp-'+pid);
+  if(el){ save('comparacion_'+pid, el.value); toast('Guardado','success'); }
+}
+
+function saveReflexionFinal(){
+  const data={};
+  REFLEXION_FINAL_PREGUNTAS.forEach(q=>{
+    const el=$('rf-'+q.id);
+    if(el) data[q.id]=el.value;
+  });
+  save('reflexion_final',data);
+  // Evaluate open questions
+  REFLEXION_FINAL_PREGUNTAS.forEach(q=>{
+    const answer=(data[q.id]||'').toLowerCase();
+    const found=q.keywords.filter(k=>answer.includes(k));
+    const pct=found.length/q.keywords.length;
+    const el=$('rf-fb-'+q.id);
+    if(el&&answer.trim()){
+      const level=pct>=0.4?'correct':pct>=0.2?'partial':'wrong';
+      const cls=level==='correct'?'alert-correct':level==='partial'?'alert-partial':'alert-wrong';
+      const label=level==='correct'?'✓ Respuesta completa':level==='partial'?'◐ Respuesta parcial':'Intenta incluir más conceptos';
+      el.innerHTML=`<div class="alert ${cls}" style="margin-top:8px">${label}${found.length?' · Conceptos: '+found.join(', '):''}</div>`;
+    }
+  });
+  toast('Reflexión final guardada','success');
+  $('ref-final-status').textContent='Guardado: '+new Date().toLocaleTimeString();
+  updateGlobalProgress();
+}
+
+// =============================================
+// PRÁCTICA PAES
+// =============================================
+function renderPaes(){
+  const skills=['localizar','interpretar','inferir','evaluar','analizar'];
+  const containers={todas:'paes-questions-todas',...Object.fromEntries(skills.map(s=>[s,'paes-questions-'+s]))};
+  const savedAnswers=load('paes_answers',{});
+  const evalResults=load('paes_eval',{});
+  
+  Object.entries(containers).forEach(([key,containerId])=>{
+    const el=$(containerId);
+    if(!el) return;
+    const qs=key==='todas'?PAES_QUESTIONS:PAES_QUESTIONS.filter(q=>q.skill===key);
+    el.innerHTML='';
+    qs.forEach((q,idx)=>{
+      const globalIdx=PAES_QUESTIONS.indexOf(q);
+      const saved=savedAnswers[q.id];
+      const evaluated=evalResults[q.id];
+      const opts=['A','B','C','D'];
+      el.innerHTML+=`<div class="q-card">
+        <div class="q-num">Pregunta ${globalIdx+1} · <span class="badge badge-blue">${q.skill.charAt(0).toUpperCase()+q.skill.slice(1)}</span></div>
+        <div class="q-text">${q.text}</div>
+        <div class="q-options" id="paes-opts-${q.id}">
+          ${q.options.map((opt,j)=>{
+            let cls='';
+            if(saved===j) cls='selected';
+            if(evaluated){
+              if(j===q.correct) cls='correct';
+              else if(saved===j&&j!==q.correct) cls='wrong';
+            }
+            return `<div class="q-option ${cls}" onclick="selectPaesOpt('${q.id}',${j})" data-idx="${j}">${opt}</div>`;
+          }).join('')}
+        </div>
+        ${evaluated?`<div class="q-feedback ${evalResults[q.id].correct?'alert-correct':'alert-wrong'}">${evalResults[q.id].correct?'✓ Correcta':'✗ Incorrecta'}: ${q.explanation}</div>`:''}
+      </div>`;
+    });
+  });
+  updatePaesStats();
+}
+
+function selectPaesOpt(qid, idx){
+  if(state.paesMode==='prueba'){
+    // Store for exam
+    state.paesExamAnswers[qid]=idx;
+    document.querySelectorAll(`#paes-opts-${qid} .q-option`).forEach(o=>o.classList.remove('selected'));
+    const opts=document.querySelectorAll(`#paes-opts-${qid} .q-option`);
+    if(opts[idx]) opts[idx].classList.add('selected');
+    return;
+  }
+  // Normal mode: save and evaluate
+  const savedAnswers=load('paes_answers',{});
+  savedAnswers[qid]=idx;
+  save('paes_answers',savedAnswers);
+  const q=PAES_QUESTIONS.find(q=>q.id===qid);
+  if(!q) return;
+  const isCorrect=idx===q.correct;
+  const evalResults=load('paes_eval',{});
+  evalResults[qid]={correct:isCorrect};
+  save('paes_eval',evalResults);
+  // Update UI
+  document.querySelectorAll(`#paes-opts-${qid} .q-option`).forEach((o,j)=>{
+    o.classList.remove('selected','correct','wrong');
+    if(j===q.correct) o.classList.add('correct');
+    else if(j===idx&&!isCorrect) o.classList.add('wrong');
+  });
+  if(!isCorrect){ addError({question:q.text, options:q.options, correct:q.correct, explanation:q.explanation, source:'paes'}); }
+  updatePaesStats();
+  updateGlobalProgress();
+}
+
+function updatePaesStats(){
+  const ans=load('paes_answers',{});
+  const eval_=load('paes_eval',{});
+  const total=Object.keys(ans).length;
+  const correct=Object.values(eval_).filter(v=>v.correct).length;
+  const pct=total>0?Math.round((correct/total)*100):0;
+  const errors=load('errors',[]).filter(e=>e.source==='paes').length;
+  $('paes-stat-total').textContent=total+'/50';
+  $('paes-stat-pct').textContent=pct+'%';
+  $('paes-stat-errores').textContent=errors;
+}
+
+function startPaes(mode){
+  state.paesMode=mode;
+  if(mode==='normal'){ renderPaes(); return; }
+  // Exam mode
+  state.paesExamAnswers={};
+  state.paesExamSeconds=5400;
+  $('paes-menu').style.display='none';
+  $('paes-exam-mode').style.display='block';
+  // Render all questions without answers shown
+  const wrap=$('paes-exam-questions');
+  wrap.innerHTML='';
+  PAES_QUESTIONS.forEach((q,i)=>{
+    const opts=['A','B','C','D'];
+    wrap.innerHTML+=`<div class="q-card">
+      <div class="q-num">Pregunta ${i+1} · <span class="badge badge-blue">${q.skill}</span></div>
+      <div class="q-text">${q.text}</div>
+      <div class="q-options" id="exam-opts-${q.id}">
+        ${q.options.map((opt,j)=>`<div class="q-option" onclick="selectExamOpt('${q.id}',${j})" data-idx="${j}">${opt}</div>`).join('')}
+      </div>
+    </div>`;
+  });
+  // Timer
+  state.paesExamInterval=setInterval(()=>{
+    state.paesExamSeconds--;
+    const m=Math.floor(state.paesExamSeconds/60).toString().padStart(2,'0');
+    const s=(state.paesExamSeconds%60).toString().padStart(2,'0');
+    $('paes-exam-timer').textContent=m+':'+s;
+    updateExamProgress();
+    if(state.paesExamSeconds<=0) finishExam();
+  },1000);
+}
+
+function selectExamOpt(qid, idx){
+  state.paesExamAnswers[qid]=idx;
+  document.querySelectorAll(`#exam-opts-${qid} .q-option`).forEach(o=>o.classList.remove('selected'));
+  const opts=document.querySelectorAll(`#exam-opts-${qid} .q-option`);
+  if(opts[idx]) opts[idx].classList.add('selected');
+  updateExamProgress();
+}
+
+function updateExamProgress(){
+  const answered=Object.keys(state.paesExamAnswers).length;
+  $('paes-exam-progress').textContent=answered+'/'+PAES_QUESTIONS.length+' respondidas';
+}
+
+function finishExam(){
+  clearInterval(state.paesExamInterval);
+  // Save answers and evaluate
+  const savedAnswers=load('paes_answers',{});
+  const evalResults=load('paes_eval',{});
+  let correct=0;
+  Object.assign(savedAnswers, state.paesExamAnswers);
+  PAES_QUESTIONS.forEach(q=>{
+    if(state.paesExamAnswers[q.id]!==undefined){
+      const isCorrect=state.paesExamAnswers[q.id]===q.correct;
+      evalResults[q.id]={correct:isCorrect};
+      if(isCorrect) correct++;
+      else addError({question:q.text, options:q.options, correct:q.correct, explanation:q.explanation, source:'paes'});
+    }
+  });
+  save('paes_answers',savedAnswers);
+  save('paes_eval',evalResults);
+  // Show results
+  $('paes-exam-mode').style.display='none';
+  $('paes-results').style.display='block';
+  const total=Object.keys(state.paesExamAnswers).length;
+  const pct=total>0?Math.round((correct/total)*100):0;
+  $('res-pct').textContent=pct+'%';
+  $('res-correct').textContent=correct;
+  $('res-wrong').textContent=total-correct;
+  // Skill bars
+  const skills=['localizar','interpretar','inferir','evaluar','analizar'];
+  let barsHtml='<h3 style="color:var(--accent);font-family:var(--font-display);margin-bottom:14px">Por habilidad</h3>';
+  skills.forEach(skill=>{
+    const qs=PAES_QUESTIONS.filter(q=>q.skill===skill);
+    const answered=qs.filter(q=>state.paesExamAnswers[q.id]!==undefined);
+    const corr=answered.filter(q=>state.paesExamAnswers[q.id]===q.correct).length;
+    const tot=answered.length;
+    const p=tot>0?Math.round((corr/tot)*100):0;
+    barsHtml+=`<div class="skill-bar-wrap">
+      <div class="skill-bar-label"><span>${skill.charAt(0).toUpperCase()+skill.slice(1)}</span><span>${corr}/${tot} (${p}%)</span></div>
+      <div class="skill-bar-track"><div class="skill-bar-fill" style="width:${p}%"></div></div>
+    </div>`;
+  });
+  $('res-skill-bars').innerHTML=barsHtml;
+  // Review
+  let reviewHtml='<div class="card"><h2>Revisión</h2>';
+  PAES_QUESTIONS.forEach((q,i)=>{
+    const ans=state.paesExamAnswers[q.id];
+    if(ans===undefined) return;
+    const isCorrect=ans===q.correct;
+    const opts=['A','B','C','D'];
+    reviewHtml+=`<div class="q-card">
+      <div class="q-num">Pregunta ${i+1}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="alert ${isCorrect?'alert-correct':'alert-wrong'}" style="margin-top:8px">
+        ${isCorrect?'✓ Correcta':'✗ Tu respuesta: '+opts[ans]+' · Correcta: '+opts[q.correct]}<br>${q.explanation}
+      </div>
+    </div>`;
+  });
+  reviewHtml+='</div>';
+  $('res-review').innerHTML=reviewHtml;
+  updateGlobalProgress();
+}
+
+function cancelExam(){
+  clearInterval(state.paesExamInterval);
+  $('paes-exam-mode').style.display='none';
+  $('paes-menu').style.display='block';
+  state.paesMode='normal';
+}
+
+function backToMenu(){
+  $('paes-results').style.display='none';
+  $('paes-menu').style.display='block';
+  renderPaes();
+}
+
+function resetPaes(){
+  if(!confirm('¿Seguro que quieres reiniciar el puntaje PAES?')) return;
+  save('paes_answers',{});
+  save('paes_eval',{});
+  renderPaes();
+  toast('Puntaje reiniciado');
+}
+
+// =============================================
+// GLOSARIO
+// =============================================
+function renderGlosario(){
+  // Base glossary
+  const baseEl=$('glosario-base');
+  if(baseEl){
+    baseEl.innerHTML=GLOSARIO_BASE.map(g=>`<div class="glos-entry">
+      <div class="glos-word">${g.word}</div>
+      <div class="glos-def">${g.def}</div>
+      <div class="glos-example">${g.example}</div>
+    </div>`).join('');
+  }
+  // Personal glossary
+  renderPersonalGlosario();
+}
+
+function renderPersonalGlosario(){
+  const el=$('glosario-personal');
+  if(!el) return;
+  const personal=load('glosario_personal',[]);
+  if(personal.length===0){ el.innerHTML='<div class="text-muted text-sm">Aún no has guardado palabras personalizadas.</div>'; return; }
+  el.innerHTML=personal.map(g=>`<div class="glos-entry">
+    <div class="flex-between"><div class="glos-word">${g.word}</div><span class="text-muted text-sm">${g.chapId?'Cap. '+g.chapId:''}</span></div>
+    <div class="glos-def">${g.def}</div>
+    <div class="glos-example">${g.example}</div>
+  </div>`).join('');
+}
+
+function definirPalabra(){
+  const word=$('glos-input').value.trim().toLowerCase();
+  if(!word){ toast('Escribe una palabra'); return; }
+  const entry=GLOSARIO_IA[word] || findGlosarioEntry(word);
+  const res=$('glos-result');
+  if(entry){
+    res.innerHTML=`<div class="glos-entry">
+      <div class="glos-word">${word.charAt(0).toUpperCase()+word.slice(1)}</div>
+      <div class="glos-def">${entry.def}</div>
+      <div class="glos-example">${entry.example}</div>
+    </div>`;
+    const personal=load('glosario_personal',[]);
+    if(!personal.find(p=>p.word===word)){
+      personal.push({word, def:entry.def, example:entry.example});
+      save('glosario_personal',personal);
+      renderPersonalGlosario();
+    }
+  } else {
+    const def=generateBasicDef(word);
+    res.innerHTML=`<div class="glos-entry">
+      <div class="glos-word">${word.charAt(0).toUpperCase()+word.slice(1)}</div>
+      <div class="glos-def">${def.def}</div>
+      <div class="glos-example">${def.example}</div>
+    </div>`;
+    const personal=load('glosario_personal',[]);
+    if(!personal.find(p=>p.word===word)){
+      personal.push({word, def:def.def, example:def.example});
+      save('glosario_personal',personal);
+      renderPersonalGlosario();
+    }
+  }
+}
+
+// =============================================
+// RESÚMENES
+// =============================================
+function renderResumenes(){
+  // Texto
+  const el=$('resumenes-texto-content');
+  if(el){
+    el.innerHTML=RESUMENES_TEXTO.map(r=>`<div class="card"><h2>${r.title}</h2><p>${r.text}</p></div>`).join('');
+  }
+  // Tabla
+  const tabla=$('tabla-resumenes');
+  if(tabla){
+    tabla.innerHTML=`<tr><th>Capítulo</th><th>Páginas</th><th>Eventos clave</th><th>Personajes principales</th></tr>
+    ${CHAPTERS.map(ch=>`<tr>
+      <td>${ch.title}</td>
+      <td>${ch.pages}</td>
+      <td>${ch.desc}</td>
+      <td>${getChapterChars(ch.id)}</td>
+    </tr>`).join('')}`;
+  }
+  // Mapa mental
+  const branches=$('mind-branches');
+  if(branches){
+    const nodes=[
+      {title:'Gregorio',desc:'Protagonista alienado'},
+      {title:'Transformación',desc:'Monstruoso insecto'},
+      {title:'Familia',desc:'Padre, Madre, Grete'},
+      {title:'Trabajo',desc:'Deuda y explotación'},
+      {title:'Alienación',desc:'Tema central'},
+      {title:'Culpa',desc:'Motor emocional'},
+      {title:'Arte',desc:'Violín de Grete'},
+      {title:'Muerte',desc:'Liberación voluntaria'},
+    ];
+    branches.innerHTML=nodes.map(n=>`<div class="mind-branch"><strong>${n.title}</strong>${n.desc}</div>`).join('');
+  }
+}
+
+function getChapterChars(id){
+  const map={1:'Gregorio, Gerente, Padre, Madre, Grete',2:'Gregorio, Grete, Padre, Madre',3:'Gregorio, Grete, Madre, Padre',4:'Gregorio, Grete, Huéspedes, Asistenta',5:'Gregorio, Asistenta, Familia'};
+  return map[id]||'';
+}
+
+// =============================================
+// PERSONAJES
+// =============================================
+function renderPersonajes(){
+  const grid=$('personajes-grid');
+  if(!grid) return;
+  grid.innerHTML=PERSONAJES_DATA.map(p=>`<div class="char-card">
+    <div class="char-avatar">${p.emoji}</div>
+    <div class="char-name">${p.name}</div>
+    <div class="char-role">${p.role}</div>
+    <div class="char-section-title">Descripción</div>
+    <div class="char-text">${p.desc}</div>
+    <div class="char-section-title">Evolución emocional</div>
+    <div class="char-text">${p.evolucion}</div>
+    <div class="char-section-title">Rol simbólico</div>
+    <div class="char-text">${p.rol}</div>
+  </div>`).join('');
+}
+
+// =============================================
+// LÍNEA DE TIEMPO
+// =============================================
+function renderTimeline(){
+  const el=$('timeline-content');
+  if(!el) return;
+  el.innerHTML=TIMELINE_DATA.map(t=>`<div class="tl-item">
+    <div class="tl-dot"></div>
+    <div class="tl-content">
+      <div class="tl-label">${t.label}</div>
+      <div class="tl-title">${t.title}</div>
+      <div class="tl-desc">${t.desc}</div>
+    </div>
+  </div>`).join('');
+}
+
+// =============================================
+// REPASAR ERRORES
+// =============================================
+function addError(errObj){
+  const errors=load('errors',[]);
+  // Avoid duplicates
+  if(!errors.find(e=>e.question===errObj.question)){
+    errors.push({...errObj, timestamp:Date.now(), retried:0, correct:false});
+    save('errors',errors);
+  }
+}
+
+function renderErrorStats(){
+  const errors=load('errors',[]);
+  $('err-total').textContent=errors.length;
+  $('err-reintentados').textContent=errors.filter(e=>e.retried>0).length;
+  $('err-superados').textContent=errors.filter(e=>e.correct).length;
+}
+
+function startRepasoErrores(){
+  const errors=load('errors',[]).filter(e=>!e.correct);
+  if(errors.length===0){ toast('¡No tienes errores pendientes!','success'); return; }
+  // Shuffle
+  state.errorRepaso=[...errors].sort(()=>Math.random()-0.5);
+  state.errorRepasoIdx=0;
+  state.errorRepasoCorrect=0;
+  $('errores-menu').style.display='none';
+  $('errores-repaso').style.display='block';
+  renderErrorQuestion();
+}
+
+function renderErrorQuestion(){
+  const q=state.errorRepaso[state.errorRepasoIdx];
+  if(!q){ finishRepaso(); return; }
+  $('err-counter').textContent=`Pregunta ${state.errorRepasoIdx+1} de ${state.errorRepaso.length}`;
+  const opts=['A','B','C','D'];
+  const wrap=$('errores-pregunta-wrap');
+  wrap.innerHTML=`<div class="q-card">
+    <div class="q-num">Error guardado · ${q.source||''}</div>
+    <div class="q-text">${q.question}</div>
+    <div class="q-options" id="err-opts">
+      ${q.options.map((opt,j)=>`<div class="q-option" onclick="selectErrorOpt(${j})" data-idx="${j}">${opt}</div>`).join('')}
+    </div>
+    <div id="err-feedback" style="margin-top:12px"></div>
+    <div class="btn-row mt-16" id="err-next-btn" style="display:none">
+      <button class="btn btn-primary" onclick="nextErrorQuestion()">→ Siguiente</button>
+    </div>
+  </div>`;
+}
+
+function selectErrorOpt(idx){
+  const q=state.errorRepaso[state.errorRepasoIdx];
+  const isCorrect=idx===q.correct;
+  const opts=['A','B','C','D'];
+  document.querySelectorAll('#err-opts .q-option').forEach((o,j)=>{
+    o.classList.remove('selected','correct','wrong');
+    if(j===q.correct) o.classList.add('correct');
+    else if(j===idx&&!isCorrect) o.classList.add('wrong');
+  });
+  $('err-feedback').innerHTML=`<div class="alert ${isCorrect?'alert-correct':'alert-wrong'}">
+    ${isCorrect?'✓ ¡Correcto!':'✗ '+opts[idx]+' es incorrecto. Correcta: '+opts[q.correct]}<br>${q.explanation||''}
+  </div>`;
+  $('err-next-btn').style.display='flex';
+  // Update error record
+  if(isCorrect){
+    state.errorRepasoCorrect++;
+    const errors=load('errors',[]);
+    const e=errors.find(e=>e.question===q.question);
+    if(e){ e.correct=true; e.retried++; save('errors',errors); }
+  } else {
+    const errors=load('errors',[]);
+    const e=errors.find(e=>e.question===q.question);
+    if(e){ e.retried++; save('errors',errors); }
+  }
+  renderErrorStats();
+}
+
+function nextErrorQuestion(){
+  state.errorRepasoIdx++;
+  if(state.errorRepasoIdx>=state.errorRepaso.length){ finishRepaso(); return; }
+  renderErrorQuestion();
+}
+
+function finishRepaso(){
+  $('errores-repaso').style.display='none';
+  $('errores-menu').style.display='block';
+  toast(`Repaso finalizado: ${state.errorRepasoCorrect}/${state.errorRepaso.length} correctas`,'success');
+  renderErrorStats();
+}
+
+function stopRepaso(){
+  $('errores-repaso').style.display='none';
+  $('errores-menu').style.display='block';
+}
+
+function clearErrores(){
+  if(!confirm('¿Eliminar todos los errores guardados?')) return;
+  save('errors',[]);
+  renderErrorStats();
+  toast('Errores eliminados');
+}
+
+// =============================================
+// INIT
+// =============================================
+function init(){
+  showSection('antes');
+  initAntes();
+  updateGlobalProgress();
+  // Auto-save on textarea change
+  document.addEventListener('input', function(e){
+    if(e.target.tagName==='TEXTAREA'){
+      clearTimeout(window._saveTimeout);
+      window._saveTimeout=setTimeout(()=>{
+        if(e.target.id.startsWith('rq-')) saveReflexion();
+        if(e.target.id.startsWith('pred-')) savePredicciones();
+        if(e.target.id.startsWith('rf-')) {}
+      }, 1500);
+    }
+  });
+}
+
+window.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
 
